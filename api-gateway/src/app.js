@@ -1,0 +1,66 @@
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const morgan = require('morgan');
+const authProxy =require('./routes/authProxy');
+const verifyJWT =
+    require('./middleware/verifyJWT');
+const errorMiddleware =
+    require('./middleware/errorMiddleware');
+
+const rateLimiter =
+    require('./middleware/rateLimiter');
+
+const authorizeRoles =
+    require('./middleware/authorizeRoles');
+
+
+const app = express();
+
+app.use(helmet());
+
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+
+app.use(express.json());
+
+
+app.use(morgan('dev'));
+
+
+app.use(rateLimiter);
+
+app.use(
+
+    '/api/auth/me',
+
+    verifyJWT,
+
+    authorizeRoles(
+
+        'CANDIDATE',
+        'COMPANY_ADMIN'
+
+    ),
+
+    authProxy
+);
+
+app.use('/api/auth', authProxy);
+
+app.get('/health', (req, res) => {
+
+    return res.status(200).json({
+
+        success: true,
+        message: 'API Gateway healthy'
+
+    });
+
+});
+
+app.use(errorMiddleware);
+
+module.exports = app;
