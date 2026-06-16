@@ -1,6 +1,8 @@
 const jwt =
     require('jsonwebtoken');
 
+const AppError=require('../errors/AppError')
+
 function verifyJWT(
     req,
     res,
@@ -38,6 +40,8 @@ function verifyJWT(
             );
 
         req.user = decoded;
+
+        console.log(req.user);
 
         next();
 

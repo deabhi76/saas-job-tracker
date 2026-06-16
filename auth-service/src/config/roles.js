@@ -30,7 +30,9 @@ const ROLES = {
 
         'VIEW_APPLICANTS',
 
-        'UPDATE_CANDIDATE_STATUS'
+        'UPDATE_CANDIDATE_STATUS',
+
+        'VIEW_ANALYTICS'
     ],
 
     CANDIDATE: [
@@ -42,6 +44,8 @@ const ROLES = {
         'SAVE_JOB',
 
         'VIEW_APPLICATIONS',
+
+        'VIEW_ANALYTICS',
 
         'UPDATE_PROFILE'
     ]

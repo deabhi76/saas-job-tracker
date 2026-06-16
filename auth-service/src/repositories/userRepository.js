@@ -124,11 +124,43 @@ async function findById(userId) {
     return mapUser(result.rows[0]);
 }
 
+async function findRecruitersByCompanyId(
+    companyId
+) {
+
+    const query = `
+
+        SELECT *
+
+        FROM users
+
+        WHERE company_id = $1
+
+        AND role = 'RECRUITER'
+
+        ORDER BY created_at DESC;
+    `;
+
+    const result =
+        await pool.query(
+
+            query,
+
+            [companyId]
+        );
+
+    return result.rows.map(
+        mapUser
+    );
+}
+
 module.exports = {
 
     createUser,
 
     findByEmail,
 
-    findById
+    findById,
+
+    findRecruitersByCompanyId
 };

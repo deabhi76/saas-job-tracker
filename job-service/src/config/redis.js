@@ -1,0 +1,40 @@
+const redis =
+    require('redis');
+
+const redisClient =
+    redis.createClient({
+
+        url:
+            process.env.REDIS_URL
+
+    });
+
+redisClient.on(
+    'error',
+    (err) => {
+
+        console.error(
+            'Redis Error:',
+            err
+        );
+
+    }
+);
+
+async function connectRedis() {
+
+    await redisClient.connect();
+
+    console.log(
+        'Job Service Redis Connected'
+    );
+
+}
+
+module.exports = {
+
+    redisClient,
+
+    connectRedis
+
+};

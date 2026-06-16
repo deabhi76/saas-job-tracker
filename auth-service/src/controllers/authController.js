@@ -73,6 +73,36 @@ const signupCompany =
     }
 );
 
+const createRecruiter =
+    asyncHandler(
+
+    async (req, res) => {
+
+        const recruiter =
+            await authService
+                .createRecruiter({
+
+                    companyId:
+                        req.user.companyId,
+
+                    email:
+                        req.body.email,
+
+                    password:
+                        req.body.password
+                });
+
+        res.status(201).json({
+
+            message:
+                'Recruiter created',
+
+            user:
+                recruiter
+        });
+    }
+);
+
 const login = asyncHandler(
 
     async (req, res) => {
@@ -95,7 +125,21 @@ const login = asyncHandler(
         );
 
         res.json({
-            accessToken
+            accessToken,
+            user: {
+
+        userId:
+            user.user_id,
+
+        email:
+            user.email,
+
+        role:
+            user.role,
+
+        companyId:
+            user.company_id
+    }
         });
     }
 );
@@ -121,7 +165,7 @@ const refreshAccessToken =
 
         setRefreshCookie(
             res,
-            refreshToken
+            newRefreshToken
         );
 
         res.json({
@@ -183,7 +227,46 @@ setRefreshCookie(
 );
 
         res.json({
-            accessToken
+            accessToken,
+            user: {
+
+        userId:
+            user.user_id,
+
+        email:
+            user.email,
+
+        role:
+            user.role,
+
+        companyId:
+            user.company_id
+    }
+        });
+    }
+);
+
+const getRecruiters =
+    asyncHandler(
+
+    async (req, res) => {
+
+        const recruiters =
+            await authService
+                .getRecruiters(
+
+                    req.user.companyId
+                );
+
+        res.json({
+
+            success: true,
+
+            count:
+                recruiters.length,
+
+            data:
+                recruiters
         });
     }
 );
@@ -191,9 +274,11 @@ setRefreshCookie(
 module.exports = {
     signupCandidate,
     signupCompany,
+    createRecruiter,
     login,
     refreshAccessToken,
     getMe,
     logout,
-    googleCallback
+    googleCallback,
+    getRecruiters
 };

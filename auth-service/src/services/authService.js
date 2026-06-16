@@ -18,6 +18,11 @@ const AppError =
 const tokenRepository =
     require('../repositories/tokenRepository');
 
+const companyRepository =
+    require(
+        '../repositories/companyRepository'
+    );
+
 async function signup(data) {
 
     const existingUser =await userRepository.findByEmail(data.email)
@@ -35,7 +40,7 @@ async function signup(data) {
 
     'COMPANY_ADMIN',
 
-    'RECRUITER',
+    // 'RECRUITER',
 
     'CANDIDATE'
 ];
@@ -55,9 +60,31 @@ if (
     const hashedPassword =
         await hashPassword(data.password);
 
+
+    let companyId = null;
+
+if (
+    data.role ===
+    'COMPANY_ADMIN'
+) {
+
+    const company =
+        await companyRepository
+            .createCompany(
+
+                data.companyName
+
+            );
+
+    companyId =
+        company.company_id;
+
+}
+
+
     const user = {
 
-        companyId: data.companyId,
+        companyId,
 
         email: data.email,
 
@@ -70,11 +97,72 @@ if (
         createdAt: new Date()
     };
 
+    
     await userRepository.createUser(user);
 
     delete user.password;
 
     return user;
+}
+
+async function createRecruiter({
+
+    companyId,
+
+    email,
+
+    password
+
+}) {
+
+    const existingUser =
+        await userRepository
+            .findByEmail(
+                email
+            );
+
+    if (existingUser) {
+
+        throw new AppError(
+
+            'User already exists',
+
+            400
+        );
+    }
+
+    const hashedPassword =
+        await hashPassword(
+            password
+        );
+
+    const recruiter = {
+
+        companyId,
+
+        email,
+
+        password:
+            hashedPassword,
+
+        role:
+            'RECRUITER',
+
+        authProvider:
+            'LOCAL',
+
+        createdAt:
+            new Date()
+    };
+
+    await userRepository
+        .createUser(
+            recruiter
+        );
+
+    delete recruiter.password;
+
+    return recruiter;
 }
 
 async function login(data) {
@@ -162,6 +250,9 @@ async function refreshAccessToken(
     refreshToken
 );
 
+
+console.log(user);
+
 const newAccessToken =
     generateAccessToken(user);
 
@@ -193,8 +284,20 @@ async function logout(refreshToken) {
     );
 }
 
+async function getRecruiters(
+    companyId
+) {
+
+    return await userRepository
+        .findRecruitersByCompanyId(
+            companyId
+        );
+}
+
 module.exports = {
     signup,
+    createRecruiter,
+    getRecruiters,
     login,
     refreshAccessToken,
     logout

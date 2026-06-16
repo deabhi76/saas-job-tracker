@@ -2,17 +2,37 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
-const authProxy =require('./routes/authProxy');
-const verifyJWT =
-    require('./middleware/verifyJWT');
-const errorMiddleware =
-    require('./middleware/errorMiddleware');
+const authProxy = require('./routes/authProxy');
+const verifyJWT = require('./middleware/verifyJWT');
+const errorMiddleware = require('./middleware/errorMiddleware');
 
-const rateLimiter =
-    require('./middleware/rateLimiter');
+const rateLimiter = require('./middleware/rateLimiter');
 
 const authorizeRoles =
     require('./middleware/authorizeRoles');
+
+const jobProxy =
+    require('./routes/jobProxy');
+
+const gatewayJobRoutes =
+    require(
+        './routes/jobRoutes'
+    );
+
+const notificationProxy =
+    require(
+        './routes/notificationProxy'
+    );
+
+const billingProxy =
+    require(
+        './routes/billingProxy'
+    );
+
+const analyticsProxy =
+    require(
+        './routes/analyticsProxy'
+    );
 
 
 const app = express();
@@ -50,6 +70,12 @@ app.use(
 
 app.use('/api/auth', authProxy);
 
+app.use(
+    '/api/jobs',
+    gatewayJobRoutes
+);
+
+
 app.get('/health', (req, res) => {
 
     return res.status(200).json({
@@ -60,6 +86,48 @@ app.get('/health', (req, res) => {
     });
 
 });
+
+app.use(
+
+    '/api/notifications',
+
+    verifyJWT,
+
+    authorizeRoles(
+
+        'CANDIDATE',
+
+        'COMPANY_ADMIN'
+
+    ),
+
+    notificationProxy
+
+);
+
+app.use(
+
+    '/api/billing',
+
+    verifyJWT,
+
+    billingProxy
+);
+
+app.use(
+
+    '/api/analytics',
+
+    verifyJWT,
+
+    authorizeRoles(
+        'COMPANY_ADMIN'
+    ),
+
+    analyticsProxy
+);
+
+
 
 app.use(errorMiddleware);
 

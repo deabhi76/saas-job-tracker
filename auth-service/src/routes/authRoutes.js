@@ -7,15 +7,22 @@ const router = express.Router();
 const verifyJWT =
     require('../middleware/authMiddleware');
 
+const authorizeRoles =
+    require(
+        '../middleware/authorizeRoles'
+    );
+
 
 const {
     signupCandidate,
     signupCompany,
+    createRecruiter,
     login,
     refreshAccessToken,
     getMe,
     logout,
-    googleCallback
+    googleCallback,
+    getRecruiters
 } = require('../controllers/authController');
 
 
@@ -24,6 +31,10 @@ const {
     candidateSignupValidator,
     loginValidator
 } = require('../validators/authValidator');
+
+const {
+    recruiterValidator
+} = require('../validators/recruiterValidator');
 
 const validate =
     require('../middleware/validationMiddleware');
@@ -57,6 +68,23 @@ router.post(
     validate,
 
     signupCompany
+);
+
+router.post(
+
+    '/recruiters',
+
+    verifyJWT,
+
+    authorizeRoles(
+        'COMPANY_ADMIN'
+    ),
+
+    recruiterValidator,
+
+    validate,
+
+    createRecruiter
 );
 
 router.post('/login',loginValidator,validate, login);
@@ -134,6 +162,19 @@ router.get(
     
     googleCallback
     
+);
+
+router.get(
+
+    '/recruiters',
+
+    verifyJWT,
+
+    authorizeRoles(
+        'COMPANY_ADMIN'
+    ),
+
+    getRecruiters
 );
 
 module.exports = router;
