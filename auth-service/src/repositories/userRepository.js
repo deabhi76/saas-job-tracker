@@ -15,6 +15,8 @@ function mapUser(row) {
         companyId:
             row.company_id,
 
+        companyName: row.company_name,
+
         email:
             row.email,
 
@@ -30,6 +32,9 @@ function mapUser(row) {
         googleId:
             row.google_id,
 
+        name:
+            row.name,
+
         createdAt:
             row.created_at
     };
@@ -43,6 +48,10 @@ async function createUser(user) {
 
             company_id,
 
+            company_name,
+
+            name,
+
             email,
 
             password,
@@ -55,7 +64,7 @@ async function createUser(user) {
 
         )
 
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 
         RETURNING *;
     `;
@@ -63,6 +72,10 @@ async function createUser(user) {
     const values = [
 
         user.companyId,
+
+        user.companyName,
+
+        user.name,
 
         user.email,
 

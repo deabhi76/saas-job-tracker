@@ -16,7 +16,7 @@ const storage =
 
                 cb(
                     null,
-                    'uploads/resumes'
+                    'src/uploads/resumes'
                 );
             },
 

@@ -1,5 +1,6 @@
 const {
-    notificationQueue
+    notificationQueue,
+    analyticsQueue
 } = require('./queues');
 
 const publishEvent =
@@ -11,7 +12,7 @@ async (
     await Promise.all([
 
         notificationQueue.add(
-            eventName,
+            eventType,
             payload,
             {
 
@@ -22,7 +23,7 @@ async (
         ),
 
         analyticsQueue.add(
-            eventName,
+            eventType,
             payload,
             {
 

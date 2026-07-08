@@ -24,11 +24,44 @@ const signupCandidate =
                 role: 'CANDIDATE'
             });
 
+        const {
+            accessToken,
+            refreshToken
+        } =
+            await sessionService
+                .createSession(user);
+
+        setRefreshCookie(
+            res,
+            refreshToken
+        );
+
         res.status(201).json({
-            message:
-                'Candidate created',
-            user
-        });
+
+    accessToken,
+
+    user: {
+
+        userId:
+            user.userId,
+
+        name:
+            user.name,
+
+        email:
+            user.email,
+
+        role:
+            user.role,
+
+        companyId:
+            user.companyId,
+
+        companyName:user.companyName
+
+    }
+
+});
     }
 );
 
@@ -65,11 +98,45 @@ const signupCompany =
         console.log(
             'Sending response'
         );
+
+        const {
+            accessToken,
+            refreshToken
+        } =
+            await sessionService
+                .createSession(user);
+
+        setRefreshCookie(
+            res,
+            refreshToken
+        );
+
         res.status(201).json({
-            message:
-                'Company admin created',
-            user
-        });
+
+    accessToken,
+
+    user: {
+
+        userId:
+            user.userId,
+
+        name:user.name,
+
+        email:
+            user.email,
+
+        role:
+            user.role,
+
+        companyId:
+            user.companyId,
+
+        companyName:user.companyName
+
+    }
+
+});
+       
     }
 );
 
@@ -78,12 +145,16 @@ const createRecruiter =
 
     async (req, res) => {
 
-        const recruiter =
+        const recruiter = 
             await authService
                 .createRecruiter({
 
                     companyId:
                         req.user.companyId,
+
+                    companyName:req.user.companyName,
+
+                    name:req.body.name,
 
                     email:
                         req.body.email,
@@ -111,6 +182,11 @@ const login = asyncHandler(
             await authService.login(
                 req.body
             );
+        
+        console.log(
+    "LOGIN USER:",
+    user
+);
 
         const {
             accessToken,
@@ -129,7 +205,9 @@ const login = asyncHandler(
             user: {
 
         userId:
-            user.user_id,
+            user.userId,
+        
+        name:user.name,
 
         email:
             user.email,
@@ -138,7 +216,10 @@ const login = asyncHandler(
             user.role,
 
         companyId:
-            user.company_id
+            user.companyId,
+
+        companyName:user.companyName
+
     }
         });
     }
@@ -231,7 +312,9 @@ setRefreshCookie(
             user: {
 
         userId:
-            user.user_id,
+            user.userId,
+
+        name:user.name,
 
         email:
             user.email,
@@ -240,7 +323,9 @@ setRefreshCookie(
             user.role,
 
         companyId:
-            user.company_id
+            user.companyId,
+
+        companyName:user.companyName
     }
         });
     }

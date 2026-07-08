@@ -40,20 +40,6 @@ async ({
     planId
 }) => {
 
-    const existingSubscription =
-        await subscriptionRepository
-        .getActiveSubscription(
-            ownerId,
-            ownerType
-        );
-
-    if (existingSubscription) {
-
-        throw new AppError(
-            'Active subscription already exists',
-            409
-        );
-    }
 
     const plan =
         await planService
@@ -75,6 +61,43 @@ async ({
         400
     );
 }
+
+    const existingSubscription =
+        await subscriptionRepository
+        .getActiveSubscription(
+            ownerId,
+            ownerType
+        );
+
+    if (existingSubscription) {
+
+    if (
+
+        existingSubscription.plan_id ===
+        planId
+
+    ) {
+
+        throw new AppError(
+
+            'Already subscribed to this plan',
+
+            409
+        );
+    }
+
+    return await upgradeSubscription({
+
+        subscriptionId:
+            existingSubscription.id,
+
+        newPlanId:
+            planId
+
+    });
+}
+
+    
 
     const startDate =
         new Date();
@@ -107,6 +130,22 @@ async ({
 
             autoRenew: true
         });
+
+        if (
+    Number(plan.monthly_price) === 0
+) {
+
+    const activeSubscription =
+        await subscriptionRepository
+            .updateSubscriptionStatus(
+                subscription.id,
+                subscriptionStatus.ACTIVE
+            );
+            await redis.del(
+    `subscription:${ownerType}:${ownerId}`
+    );
+    return activeSubscription;
+}
 
     const paymentResult =
         await paymentService
@@ -216,8 +255,8 @@ async (
 
     if (
 
-    subscription.owner_id !==
-    ownerId||
+    Number(subscription.owner_id )!==
+    Number(ownerId)||
     subscription.owner_type !== ownerType
 
 ) {
@@ -245,13 +284,17 @@ if (
     );
 }
 
-    const updatedSubscription =
-        await subscriptionRepository
-        .updateSubscriptionStatus(
+    const freePlan =
+    await planService
+        .getFreePlanByOwnerType(
+            ownerType
+        );
 
+const updatedSubscription =
+    await subscriptionRepository
+        .updatePlan(
             subscriptionId,
-
-            subscriptionStatus.CANCELLED
+            freePlan.id
         );
 
     await publishEvent(
@@ -279,6 +322,10 @@ async ({
     subscriptionId,
     newPlanId
 }) => {
+
+    console.log(
+    "UPGRADE SUBSCRIPTION HIT"
+);
 
     const subscription =
         await subscriptionRepository
@@ -316,6 +363,31 @@ if (
     throw new AppError(
 
         'Invalid plan type',
+
+        400
+    );
+}
+
+const paymentResult =
+    await paymentService
+        .createPayment({
+
+            subscriptionId,
+
+            amount:
+                plan.monthly_price
+        });
+
+        console.log(
+    "PAYMENT RESULT:",
+    paymentResult
+);
+
+        if (!paymentResult.success) {
+
+    throw new AppError(
+
+        'Payment failed',
 
         400
     );
@@ -362,6 +434,8 @@ async (ownerId,ownerType) => {
             .getCurrentSubscriptionByOwner(
                 ownerId,ownerType
             );
+
+        console.log("FOUND SUBSCRIPTION:", subscription);
 
     if (subscription) {
 

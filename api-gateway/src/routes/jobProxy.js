@@ -43,9 +43,21 @@ const jobProxy =
 
                 proxyReq.setHeader(
 
+                    'x-user-name',
+
+                    req.user.name
+                );
+
+                proxyReq.setHeader(
+
                     'x-user-role',
 
                     req.user.role
+                );
+
+                proxyReq.setHeader(
+                    "x-user-email",
+                    req.user.email
                 );
 
                 if (
@@ -57,6 +69,13 @@ const jobProxy =
                         'x-company-id',
 
                         req.user.companyId
+                    );
+
+                    proxyReq.setHeader(
+
+                        'x-company-name',
+
+                        req.user.companyName
                     );
 
                 }

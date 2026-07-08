@@ -41,6 +41,21 @@ router.post(
 
 router.get(
 
+    '/job/:id/applied',
+
+    verifyJWT,
+
+    authorizeRoles(
+        'CANDIDATE',
+        'RECRUITER'
+    ),
+
+    jobProxy
+
+);
+
+router.get(
+
     '/applications/my-applications',
 
     verifyJWT,
@@ -157,6 +172,20 @@ router.patch(
 
 router.get(
     '/:id',
+    jobProxy
+);
+
+router.post(
+
+    '/upload-resume',
+
+    verifyJWT,
+
+    authorizeRoles(
+        'CANDIDATE',
+        'RECRUITER'
+    ),
+
     jobProxy
 );
 

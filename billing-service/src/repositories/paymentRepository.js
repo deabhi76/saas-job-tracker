@@ -90,9 +90,35 @@ async (subscriptionId) => {
     return result.rows;
 };
 
+const getPaymentsByOwner =
+async (
+    ownerId,
+    ownerType
+) => {
+
+    const result =
+        await pool.query(
+
+            `
+            SELECT p.*
+            FROM payments p
+            JOIN subscriptions s
+                ON p.subscription_id = s.id
+            WHERE s.owner_id = $1
+            AND s.owner_type = $2
+            ORDER BY p.created_at DESC
+            `,
+
+            [ownerId, ownerType]
+        );
+
+    return result.rows;
+};
+
 module.exports = {
     createPayment,
     getPaymentById,
     updatePaymentStatus,
-    getPaymentsForSubscription
+    getPaymentsForSubscription,
+    getPaymentsByOwner
 };

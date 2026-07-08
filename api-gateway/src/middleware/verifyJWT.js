@@ -14,10 +14,20 @@ function verifyJWT(
         const authHeader =
             req.headers.authorization;
 
+            console.log(
+    "AUTH HEADER:",
+    authHeader
+);
+
         if (
             !authHeader ||
             !authHeader.startsWith('Bearer ')
         ) {
+
+            console.log(
+        "JWT ERROR:",
+        err
+    );
 
             return next(
 
@@ -32,6 +42,11 @@ function verifyJWT(
 
         const token =
             authHeader.split(' ')[1];
+
+            console.log(
+            "TOKEN:",
+            token
+        );
 
         const decoded =
             jwt.verify(

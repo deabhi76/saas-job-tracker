@@ -27,10 +27,17 @@ async (
     companyId
 ) => {
 
+   console.log(
+        "Calling Billing for company:",
+        companyId
+    );
+
+    console.log("BILLING_SERVICE_URL =", process.env.BILLING_SERVICE_URL);
+
     const response =
         await billingApi.get(
 
-            '/api/billing/features/company',
+            '/billing/features/company',
 
             {
                 headers: {
@@ -39,6 +46,11 @@ async (
                 }
             }
         );
+
+    console.log(
+        "Billing response:",
+        response.data
+    );
 
     return response.data.data;
 };
@@ -51,7 +63,7 @@ async (
     const response =
         await billingApi.get(
 
-            '/api/billing/features/personal',
+            '/billing/features/personal',
 
             {
                 headers: {

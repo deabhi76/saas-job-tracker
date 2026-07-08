@@ -23,7 +23,8 @@ const {
     getMyApplications,
     getApplicationsForJob,
     updateApplicationStatus,
-    getApplicationForCandidate
+    getApplication,
+    hasApplied
 
 } = require(
     '../controllers/applicationController'
@@ -64,6 +65,7 @@ const {
 } = require(
     '../controllers/uploadController'
 );
+
 
 router.post(
 
@@ -132,7 +134,7 @@ router.get(
 
     '/applications/:id',
 
-    getApplicationForCandidate
+    getApplication
 
 );
 
@@ -150,9 +152,8 @@ router.put(
     '/:id',
      jobIdValidator,
 
-    validate,
-
     createJobValidator,
+
     validate,
 
     updateJob
@@ -180,17 +181,20 @@ router.post(
 
     '/upload-resume',
 
-    verifyJWT,
-
-    authorizeRoles(
-        'CANDIDATE'
-    ),
-
     upload.single(
         'resume'
     ),
 
     uploadResume
+);
+
+router.get(
+
+    "/job/:id/applied",
+
+
+        hasApplied
+
 );
 
 module.exports =

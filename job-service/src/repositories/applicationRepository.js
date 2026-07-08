@@ -7,6 +7,10 @@ async function createApplication({
 
     candidateId,
 
+    candidateName,
+
+    candidateEmail,
+
     resumeUrl,
 
     priorityScore
@@ -21,13 +25,17 @@ async function createApplication({
 
             candidate_id,
 
+            candidate_name,
+
+            candidate_email,
+
             resume_url,
 
             priority_score
 
         )
 
-        VALUES ($1, $2 ,$3,$4)
+        VALUES ($1, $2 ,$3,$4,$5,$6)
 
         RETURNING *;
 
@@ -36,7 +44,7 @@ async function createApplication({
     const result =
         await pool.query(
             query,
-            [jobId, candidateId,resumeUrl,priorityScore]
+            [jobId, candidateId,candidateName,candidateEmail,resumeUrl,priorityScore]
         );
 
     return result.rows[0];
@@ -54,8 +62,10 @@ async function getApplicationsByCandidateId(
             applications.id,
             applications.status,
             applications.created_at,
+            applications.resume_url,
 
             jobs.id AS job_id,
+            jobs.company_name,
             jobs.title,
             jobs.location,
             jobs.employment_type
@@ -164,6 +174,37 @@ async function updateApplicationStatus(
 
 }
 
+async function hasApplied(
+    candidateId,
+    jobId
+) {
+
+    const result =
+        await pool.query(
+
+            `
+            SELECT EXISTS(
+
+                SELECT 1
+
+                FROM applications
+
+                WHERE candidate_id = $1
+                AND job_id = $2
+
+            ) AS applied
+            `,
+
+            [
+                candidateId,
+                jobId
+            ]
+
+        );
+
+    return result.rows[0].applied;
+}
+
 
 
 module.exports = {
@@ -172,6 +213,7 @@ module.exports = {
      getApplicationsByCandidateId,
      getApplicationsForJob,
      getApplicationById,
-     updateApplicationStatus
+     updateApplicationStatus,
+     hasApplied
 
 };

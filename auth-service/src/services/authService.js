@@ -11,7 +11,10 @@ const {
     generateRefreshToken,
     verifyRefreshToken
 } = require('../utils/jwt');
-
+const billingClient =
+    require(
+        '../clients/billingClient'
+    );
 const AppError =
     require('../errors/AppError');
 
@@ -40,7 +43,7 @@ async function signup(data) {
 
     'COMPANY_ADMIN',
 
-    // 'RECRUITER',
+    'RECRUITER',
 
     'CANDIDATE'
 ];
@@ -86,6 +89,16 @@ if (
 
         companyId,
 
+        companyName:
+
+    data.role === 'COMPANY_ADMIN'
+
+        ? data.companyName
+
+        : null,
+
+        name: data.name,
+
         email: data.email,
 
         password: hashedPassword,
@@ -97,17 +110,76 @@ if (
         createdAt: new Date()
     };
 
-    
-    await userRepository.createUser(user);
+   console.log("Creating user"); 
+    await userRepository
+    .createUser(user);
+console.log("User created");
+const createdUser =
+    await userRepository
+        .findByEmail(
+            user.email
+        );
 
-    delete user.password;
+        console.log("Created user found");
+console.log(
+    "Created User:",
+    createdUser
+);
+console.log("Before billing call");
 
-    return user;
+if (
+
+    createdUser.role ===
+    'COMPANY_ADMIN'
+
+) {
+
+    await billingClient
+        .createDefaultSubscription(
+
+            createdUser.companyId,
+
+            'COMPANY',
+
+            process.env
+                .FREE_COMPANY_PLAN_ID,
+
+            createdUser.userId
+        );
+}
+
+if (
+
+    createdUser.role ===
+    'CANDIDATE'
+
+) {
+
+    await billingClient
+        .createDefaultSubscription(
+
+            createdUser.userId,
+
+            'CANDIDATE',
+
+            process.env
+                .FREE_CANDIDATE_PLAN_ID
+        );
+}
+console.log("After billing call");
+
+delete user.password;
+
+return createdUser;
 }
 
 async function createRecruiter({
 
     companyId,
+
+    companyName,
+
+    name,
 
     email,
 
@@ -140,6 +212,10 @@ async function createRecruiter({
 
         companyId,
 
+        companyName,
+
+        name,
+
         email,
 
         password:
@@ -160,7 +236,24 @@ async function createRecruiter({
             recruiter
         );
 
+    const createdRecruiter =
+    await userRepository
+        .findByEmail(
+            recruiter.email
+        );
+
     delete recruiter.password;
+
+     await billingClient
+        .createDefaultSubscription(
+
+            createdRecruiter.userId,
+
+            'CANDIDATE',
+
+            process.env
+                .FREE_CANDIDATE_PLAN_ID
+        );
 
     return recruiter;
 }
@@ -168,7 +261,11 @@ async function createRecruiter({
 async function login(data) {
 
     const user = await userRepository.findByEmail(data.email)
-    
+    console.log(
+        "USER FOUND:",
+        user
+    );
+
     if (!user) {
         throw new AppError(
             'Invalid credentials',
@@ -181,6 +278,8 @@ async function login(data) {
             data.password,
             user.password
         );
+
+        console.log("password valid:",validPassword);
 
     if (!validPassword) {
         throw new AppError(

@@ -24,5 +24,6 @@ const analyticsQueue =
     );
 
 module.exports = {
-    notificationQueue
+    notificationQueue,
+    analyticsQueue
 };

@@ -6,6 +6,7 @@ async function createJob(jobData) {
     const {
 
         companyId,
+        companyName,
         createdBy,
         title,
         description,
@@ -22,6 +23,7 @@ async function createJob(jobData) {
         INSERT INTO jobs (
 
             company_id,
+            company_name,
             created_by,
             title,
             description,
@@ -37,7 +39,7 @@ async function createJob(jobData) {
 
             $1, $2, $3, $4,
             $5, $6, $7, $8,
-            $9
+            $9 ,$10
 
         )
 
@@ -48,6 +50,7 @@ async function createJob(jobData) {
     const values = [
 
         companyId,
+        companyName,
         createdBy,
         title,
         description,
@@ -347,11 +350,32 @@ async function countJobsByCompanyId(
     );
 }
 
+async function getJobsByCompanyId(
+    companyId
+) {
+
+    const result =
+        await pool.query(
+
+            `
+            SELECT *
+            FROM jobs
+            WHERE company_id = $1
+            ORDER BY created_at DESC
+            `,
+
+            [companyId]
+        );
+
+    return result.rows;
+}
+
 module.exports = {
 
     createJob,
 
     getJobsByUserId,
+    getJobsByCompanyId,
 
     getJobById,
     updateJob,

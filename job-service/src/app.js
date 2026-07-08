@@ -50,7 +50,7 @@ app.use(
 
         path.join(
             __dirname,
-            '../uploads'
+            '../src/uploads'
         )
     )
 );

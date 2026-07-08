@@ -66,6 +66,39 @@ const notificationProxy =
 
                 );
 
+                proxyReq.setHeader(
+
+                    'x-user-name',
+
+                    req.user.name
+
+                );
+
+                proxyReq.setHeader(
+                    "x-user-email",
+                    req.user.email
+                );
+
+                if (
+                    req.user.companyId
+                ) {
+
+                    proxyReq.setHeader(
+
+                        'x-company-id',
+
+                        req.user.companyId
+                    );
+
+                    proxyReq.setHeader(
+
+                        'x-company-name',
+
+                        req.user.companyName
+                    );
+
+                }
+
             }
 
         }

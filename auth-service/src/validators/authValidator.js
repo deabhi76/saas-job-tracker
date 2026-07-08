@@ -4,6 +4,16 @@ const {
 
 const candidateSignupValidator = [
 
+    body('name')
+
+    .trim()
+
+    .notEmpty()
+
+    .withMessage(
+        'Name is required'
+    ),
+
     body('email')
 
         .trim()
@@ -36,6 +46,16 @@ const companySignupValidator = [
         .withMessage(
             'Company name is required'
         ),
+
+    body('name')
+
+    .trim()
+
+    .notEmpty()
+
+    .withMessage(
+        'Name is required'
+    ),
 
     body('email')
 

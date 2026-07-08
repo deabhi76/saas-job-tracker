@@ -58,7 +58,20 @@ async ({
         transactionId:result.transactionId
     };
 };
+const getPayments =
+async (
+    ownerId,
+    ownerType
+) => {
+
+    return await paymentRepository
+        .getPaymentsByOwner(
+            ownerId,
+            ownerType
+        );
+};
 
 module.exports = {
-    createPayment
+    createPayment,
+    getPayments
 };

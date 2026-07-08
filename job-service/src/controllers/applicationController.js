@@ -11,10 +11,38 @@ async function applyToJob(
 
     try {
 
+
+        const role =
+            req.headers[
+                'x-user-role'
+            ];
+
+//         if (
+//     role === "RECRUITER"
+// ) {
+//     const companyId=req.headers[
+//                 'x-user-companyId'
+//             ];
+    
+//     if(Number(companyId) === Number(req.params.company_id))
+//     throw new AppError(
+//         "Recruiters cannot apply to jobs posted by their own company.",
+//         403
+//     );
+// }
+        
         const candidateId =
             req.headers[
                 'x-user-id'
             ];
+
+        
+
+       const candidateName=
+    req.headers["x-user-name"];
+
+const candidateEmail=
+    req.headers["x-user-email"];
 
         const application =
             await applicationService
@@ -25,7 +53,17 @@ async function applyToJob(
 
                     candidateId,
 
-                    resumeUrl:req.body.resumeUrl
+                    candidateName,
+
+                    candidateEmail,
+
+                    resumeUrl:req.body.resumeUrl,
+
+                    role,
+
+                    companyId:req.headers["x-company-id"]
+
+
 
                 });
 
@@ -165,6 +203,7 @@ const companyId =
         'x-company-id'
     ];
 
+
 const updatedApplication =
     await applicationService
         .updateApplicationStatus({
@@ -200,7 +239,7 @@ const updatedApplication =
 
 }
 
-async function getApplicationForCandidate(
+async function getApplication(
     req,
     res,
     next
@@ -208,18 +247,32 @@ async function getApplicationForCandidate(
 
     try {
 
-        const candidateId =
+        const userId =
             req.headers[
                 'x-user-id'
             ];
 
+        const role =
+            req.headers[
+                'x-user-role'
+            ];
+
+        const companyId =
+            req.headers[
+                'x-company-id'
+            ];
+
         const application =
             await applicationService
-                .getApplicationForCandidate(
+                .getApplication(
 
                     req.params.id,
 
-                    candidateId
+                    userId,
+
+                    role,
+
+                    companyId
 
                 );
 
@@ -239,12 +292,60 @@ async function getApplicationForCandidate(
 
 }
 
+async function hasApplied(
+
+    req,
+
+    res,
+
+    next
+
+) {
+
+    try {
+
+        const candidateId =
+            req.headers[
+                "x-user-id"
+            ];
+
+        const applied =
+            await applicationService
+                .hasApplied(
+
+                    candidateId,
+
+                    req.params.id
+
+                );
+
+        res.json({
+
+            success: true,
+
+            data: {
+
+                applied
+
+            }
+
+        });
+
+    } catch (err) {
+
+        next(err);
+
+    }
+
+}
+
 module.exports = {
 
     applyToJob,
     getMyApplications,
     getApplicationsForJob,
     updateApplicationStatus,
-    getApplicationForCandidate
+    getApplication,
+    hasApplied
 
 };

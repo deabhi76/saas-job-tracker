@@ -1,5 +1,6 @@
 const planService =
     require('../services/planService');
+const paymentService=require('../services/paymentService')
 
 const subscriptionService =
     require('../services/subscriptionService');
@@ -340,6 +341,16 @@ async (
                     companyId,
                     ownerTypes.COMPANY
                 );
+        const priorityListing =
+    await featureAccessService
+        .canCompanyUsePriorityListing(
+            companyId
+        );
+
+            console.log({
+    companyId,
+    maxJobs
+});
 
         res.status(200).json({
 
@@ -348,6 +359,8 @@ async (
             data: {
 
                 premiumAnalytics,
+
+                priorityListing,
 
                 maxJobs
             }
@@ -380,11 +393,19 @@ async (
                     ownerTypes.CANDIDATE
                 );
 
+        const premiumAnalytics =
+    await featureAccessService
+        .canPersonalUsePremiumAnalytics(
+            userId
+        );
+
         res.status(200).json({
 
             success: true,
 
             data: {
+
+                premiumAnalytics,
 
                 priorityApplications
             }
@@ -403,7 +424,8 @@ asyncHandler(
         res
     ) => {
 
-
+        let ownerId;
+        let ownerType;
 
         const role =
             req.headers[
@@ -434,6 +456,12 @@ else {
         ownerTypes.CANDIDATE;
 }
 
+console.log({
+    role,
+    ownerId,
+    ownerType
+});
+
         const subscription =
             await subscriptionService
                 .getSubscription(
@@ -451,6 +479,110 @@ else {
     }
 );
 
+const createInternalSubscription =
+async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const {
+
+            ownerId,
+
+            ownerType,
+
+            planId,
+
+            companyAdminId
+
+        } = req.body;
+
+        const subscription =
+            await subscriptionService
+                .purchaseSubscription({
+
+                    ownerId,
+
+                    ownerType,
+
+                    companyAdminId,
+
+                    planId
+                });
+
+        res.status(201).json({
+
+            success: true,
+
+            data: subscription
+        });
+
+    } catch(error) {
+
+        next(error);
+    }
+};
+
+const getMyPayments =
+asyncHandler(
+
+    async (
+        req,
+        res
+    ) => {
+
+        const role =
+            req.headers[
+                'x-user-role'
+            ];
+
+        let ownerId;
+        let ownerType;
+
+        if (
+            role ===
+            'COMPANY_ADMIN'
+        ) {
+
+            ownerId =
+                req.headers[
+                    'x-company-id'
+                ];
+
+            ownerType =
+                ownerTypes.COMPANY;
+
+        } else {
+
+            ownerId =
+                req.headers[
+                    'x-user-id'
+                ];
+
+            ownerType =
+                ownerTypes.CANDIDATE;
+        }
+
+        const payments =
+            await paymentService
+                .getPayments(
+                    ownerId,
+                    ownerType
+                );
+
+        res.json({
+
+            success: true,
+
+            data:
+                payments
+        });
+    }
+);
+
 module.exports = {
     getPlans,
     purchaseSubscription,
@@ -458,5 +590,7 @@ module.exports = {
     // getFeatures,
     getCompanyFeatures,
     getPersonalFeatures,
-    getSubscription
+    getSubscription,
+    createInternalSubscription,
+    getMyPayments
 };

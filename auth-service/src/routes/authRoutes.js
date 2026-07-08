@@ -9,7 +9,7 @@ const verifyJWT =
 
 const authorizeRoles =
     require(
-        '../middleware/authorizeRoles'
+        '../middleware/roleMiddleware'
     );
 
 

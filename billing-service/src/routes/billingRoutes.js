@@ -11,7 +11,8 @@ const validate =
 
 const {
 
-    purchaseSubscriptionValidator
+    purchaseSubscriptionValidator,
+    subscriptionIdValidator
 
 } = require(
     '../validators/subscriptionValidator'
@@ -19,6 +20,24 @@ const {
 
 const router =
     express.Router();
+
+    router.use((req,res,next)=>{
+
+    console.log(
+        "BILLING ROUTE:",
+        req.method,
+        req.originalUrl
+    );
+
+    next();
+
+});
+
+router.get(
+    '/payments/me',
+    billingController
+        .getMyPayments
+);
 
 router.get(
     '/plans',

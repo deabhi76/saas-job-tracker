@@ -58,13 +58,6 @@ app.use(
 
     verifyJWT,
 
-    authorizeRoles(
-
-        'CANDIDATE',
-        'COMPANY_ADMIN'
-
-    ),
-
     authProxy
 );
 
@@ -97,6 +90,8 @@ app.use(
 
         'CANDIDATE',
 
+        'RECRUITER',
+
         'COMPANY_ADMIN'
 
     ),
@@ -109,10 +104,28 @@ app.use(
 
     '/api/billing',
 
+    (req, res, next) => {
+
+        console.log(
+            'BILLING ROUTE HIT'
+        );
+
+        next();
+    },
+
     verifyJWT,
 
     billingProxy
 );
+
+// app.use(
+
+//     '/api/billing',
+
+//     verifyJWT,
+
+//     billingProxy
+// );
 
 app.use(
 
@@ -121,7 +134,13 @@ app.use(
     verifyJWT,
 
     authorizeRoles(
-        'COMPANY_ADMIN'
+        'SUPER_ADMIN',
+
+    'COMPANY_ADMIN',
+
+    'RECRUITER',
+
+    'CANDIDATE'
     ),
 
     analyticsProxy

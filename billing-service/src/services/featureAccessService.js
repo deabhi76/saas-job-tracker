@@ -4,6 +4,12 @@ const redis =
     require(
         '../config/redis'
     );
+
+const ownerTypes = {
+    COMPANY: 'COMPANY',
+    CANDIDATE: 'CANDIDATE'
+};
+
 const getCachedSubscription =
 async (
     ownerId,
@@ -63,6 +69,7 @@ async (
         ownerId,
         ownerType
     );
+    
 
     if (!subscription) {
         return false;
@@ -141,15 +148,27 @@ async (ownerId,ownerType) => {
 const getMaxJobsAllowed =
 async (ownerId,ownerType) => {
 
+    console.log(
+    "OWNER:",
+    ownerId,
+    ownerType
+);
     const subscription =
     await getCachedSubscription(
         ownerId,ownerType
     );
+console.log(
+    "SUBSCRIPTION:",
+    subscription
+);
 
     if (!subscription) {
         return 0;
     }
-
+    console.log(
+    "FEATURES:",
+    subscription?.features
+);
     return (
         subscription.features?.maxJobs
         || 0
@@ -174,7 +193,7 @@ async (
     );
 };
 
-const canUseApplicationAnalytics =
+const canPersonalUsePremiumAnalytics =
 async (
     userId
 ) => {
@@ -185,7 +204,22 @@ async (
 
         ownerTypes.CANDIDATE,
 
-        'applicationAnalytics'
+        'premiumAnalytics'
+    );
+};
+
+const canCompanyUsePriorityListing =
+async (
+    companyId
+) => {
+
+    return await hasFeature(
+
+        companyId,
+
+        ownerTypes.COMPANY,
+
+        'priorityListing'
     );
 };
 
@@ -198,5 +232,6 @@ module.exports = {
     canCompanyUsePremiumAnalytics,
     canPersonalUsePriorityApplications,
     getCompanyMaxJobsAllowed,
-    canUseApplicationAnalytics
+    canPersonalUsePremiumAnalytics,
+    canCompanyUsePriorityListing
 };

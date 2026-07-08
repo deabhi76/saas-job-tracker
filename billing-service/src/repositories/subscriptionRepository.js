@@ -73,7 +73,7 @@ const getActiveSubscription = async (
             AND status = 'ACTIVE'
             LIMIT 1
             `,
-            [ownerId]
+            [ownerId,ownerType]
         );
 
     return result.rows[0];
@@ -129,7 +129,7 @@ async (ownerId,ownerType) => {
     const result =
         await pool.query(
             `
-            SELECT s.*, p.features
+            SELECT s.*,p.name AS plan_name, p.features
             FROM subscriptions s
             JOIN plans p
                 ON s.plan_id = p.id
@@ -140,7 +140,7 @@ async (ownerId,ownerType) => {
             ORDER BY s.created_at DESC
             LIMIT 1
             `,
-            [ownerId]
+            [ownerId,ownerType]
         );
 
     return result.rows[0];

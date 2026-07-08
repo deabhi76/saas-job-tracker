@@ -41,8 +41,29 @@ async (
             );
 };
 
+const getFreePlanByOwnerType =
+async (ownerType) => {
+
+    const plan =
+        await planRepository
+            .getFreePlanByOwnerType(
+                ownerType
+            );
+
+    if (!plan) {
+
+        throw new AppError(
+            'Free plan not found',
+            404
+        );
+    }
+
+    return plan;
+};
+
 module.exports = {
     getPlanById,
     getAllPlans,
-    getPlansByOwnerType
+    getPlansByOwnerType,
+    getFreePlanByOwnerType
 };

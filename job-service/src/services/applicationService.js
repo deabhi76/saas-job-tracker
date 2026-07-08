@@ -41,7 +41,15 @@ async function applyToJob({
 
     candidateId,
 
-    resumeUrl
+    candidateName,
+
+    candidateEmail,
+
+    resumeUrl,
+
+    role,
+
+    companyId
 
 }) {
 
@@ -68,6 +76,21 @@ async function applyToJob({
 
     }
 
+    if (
+    role === "RECRUITER" &&
+    Number(companyId) === Number(job.company_id)
+) {
+
+    throw new AppError(
+
+        "Recruiters cannot apply to jobs posted by their own company.",
+
+        403
+
+    );
+
+}
+
     try {
 
         const personalFeatures =
@@ -90,6 +113,10 @@ async function applyToJob({
                     jobId,
 
                     candidateId,
+
+                    candidateName,
+
+                    candidateEmail,
 
                     resumeUrl,
 
@@ -430,11 +457,15 @@ if (status === 'REVIEWED') {
 return updatedApplication;
 }
 
-async function getApplicationForCandidate(
+async function getApplication(
 
     applicationId,
 
-    candidateId
+    userId,
+
+    role,
+
+    companyId
 
 ) {
 
@@ -443,7 +474,8 @@ async function getApplicationForCandidate(
             .getApplicationById(
                 applicationId
             );
-
+            
+            
     if (!application) {
 
         throw new AppError(
@@ -453,27 +485,79 @@ async function getApplicationForCandidate(
 
     }
 
+    const job =
+    await jobRepository
+        .getJobById(
+            application.job_id
+        );
+
     if (
+    role === 'CANDIDATE'
+) {
 
+    if (
         application.candidate_id !=
-        candidateId
-
+        userId
     ) {
 
         throw new AppError(
-
             'Unauthorized',
-
             403
-
         );
-
     }
+}
+
+else if (
+    role === 'RECRUITER'
+) {
+
+    if (
+        job.created_by !=
+        userId
+    ) {
+
+        throw new AppError(
+            'Unauthorized',
+            403
+        );
+    }
+}
+
+else if (
+    role === 'COMPANY_ADMIN'
+) {
+
+    if (
+        job.company_id !=
+        companyId
+    ) {
+
+        throw new AppError(
+            'Unauthorized',
+            403
+        );
+    }
+}
 
     return application;
 
 }
 
+async function hasApplied(
+
+    candidateId,
+
+    jobId
+
+) {
+
+    return await applicationRepository
+        .hasApplied(
+            candidateId,
+            jobId
+        );
+
+}
 
 module.exports = {
 
@@ -482,6 +566,7 @@ module.exports = {
     getMyApplications,
     getApplicationsForJob,
     updateApplicationStatus,
-    getApplicationForCandidate
+    getApplication,
+    hasApplied
 
 };

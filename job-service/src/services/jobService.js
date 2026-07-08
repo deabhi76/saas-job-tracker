@@ -32,21 +32,22 @@ async function createJob(
     const features =
         await billingClient
             .getCompanyFeatures(
-                jobData.company_id
+                jobData.companyId
             );
-if (
-    !features.premiumAnalytics
-) {
+        console.log(features);
+// if (
+//     !features.premiumAnalytics
+// ) {
 
-    throw new AppError(
-        'Premium Analytics required',
-        403
-    );
-}
+//     throw new AppError(
+//         'Premium Analytics required',
+//         403
+//     );
+// }
     const currentJobs =
         await jobRepository
             .countJobsByCompanyId(
-                jobData.company_id
+                jobData.companyId
             );
 
     if (
@@ -96,6 +97,10 @@ await redisClient.del(
     `myjobs:${job.created_by}`
 );
 
+await redisClient.del(
+    `companyjobs:${job.company_id}`
+);
+
 return job;
 }
 
@@ -133,6 +138,46 @@ async function getJobsByUserId(
         {
             EX: 60
         }
+    );
+
+    return jobs;
+}
+
+async function getJobsByCompanyId(
+    companyId
+) {
+
+    const cacheKey =
+        `companyjobs:${companyId}`;
+
+    const cached =
+        await redisClient.get(
+            cacheKey
+        );
+
+    if (cached) {
+
+        return JSON.parse(
+            cached
+        );
+    }
+
+    const jobs =
+        await jobRepository
+            .getJobsByCompanyId(
+                companyId
+            );
+
+    await redisClient.set(
+
+        cacheKey,
+
+        JSON.stringify(jobs),
+
+        {
+            EX: 60
+        }
+
     );
 
     return jobs;
@@ -232,6 +277,10 @@ await redisClient.del(
     `myjobs:${job.created_by}`
 );
 
+await redisClient.del(
+    `companyjobs:${job.company_id}`
+);
+
 return updatedJob;
 
 }
@@ -321,6 +370,10 @@ await redisClient.del(
 
 await redisClient.del(
     `myjobs:${job.created_by}`
+);
+
+await redisClient.del(
+    `companyjobs:${job.company_id}`
 );
 
 return deletedJob;
@@ -428,11 +481,78 @@ async function getJobById(
 
     return job;
 }
+
+async function getMyJobs(
+    req,
+    res,
+    next
+) {
+
+    try {
+
+        const userId =
+            req.headers[
+                'x-user-id'
+            ];
+
+        const companyId =
+            req.headers[
+                'x-company-id'
+            ];
+
+        const role =
+            req.headers[
+                'x-user-role'
+            ];
+
+        let jobs;
+
+        if (
+            role === "COMPANY_ADMIN"
+        ) {
+
+            jobs =
+                await jobService
+                    .getJobsByCompanyId(
+                        companyId
+                    );
+
+        } else {
+
+            jobs =
+                await jobService
+                    .getJobsByUserId(
+                        userId
+                    );
+
+        }
+
+        return res.json({
+
+            success: true,
+
+            count:
+                jobs.length,
+
+            data: jobs
+
+        });
+
+    } catch (err) {
+
+        next(err);
+
+    }
+
+}
+
+
 module.exports = {
 
     createJob,
 
     getJobsByUserId,
+    getJobsByCompanyId,
 
     updateJob,
 

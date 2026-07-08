@@ -14,6 +14,9 @@ async function createJob(
                 'x-company-id'
             ];
 
+        companyName=
+    req.headers['x-company-name'];
+
         const createdBy =
             req.headers[
                 'x-user-id'
@@ -21,9 +24,11 @@ async function createJob(
 
         const jobData = {
 
-            company_id:companyId,
+            companyId,
 
-            ccreated_by:createdBy,
+            companyName,
+
+            createdBy,
 
             title:
                 req.body.title,
@@ -44,6 +49,8 @@ async function createJob(
                 req.body.employmentType
 
         };
+
+        console.log(jobData);
 
         const job =
             await jobService
@@ -78,11 +85,37 @@ async function getMyJobs(
                 'x-user-id'
             ];
 
-        const jobs =
-            await jobService
-                .getJobsByUserId(
-                    userId
-                );
+        const companyId =
+            req.headers[
+                'x-company-id'
+            ];
+
+        const role =
+            req.headers[
+                'x-user-role'
+            ];
+
+        let jobs;
+
+        if (
+            role === "COMPANY_ADMIN"
+        ) {
+
+            jobs =
+                await jobService
+                    .getJobsByCompanyId(
+                        companyId
+                    );
+
+        } else {
+
+            jobs =
+                await jobService
+                    .getJobsByUserId(
+                        userId
+                    );
+
+        }
 
         return res.json({
 

@@ -98,10 +98,31 @@ const deactivatePlan = async (id) => {
     return result.rows[0];
 };
 
+const getFreePlanByOwnerType =
+async (ownerType) => {
+
+    const result =
+        await pool.query(
+
+            `
+            SELECT *
+            FROM plans
+            WHERE owner_type = $1
+            AND monthly_price = 0
+            LIMIT 1
+            `,
+
+            [ownerType]
+        );
+
+    return result.rows[0];
+};
+
 module.exports = {
     createPlan,
     getPlanById,
     getAllPlans,
     deactivatePlan,
-    getPlansByOwnerType
+    getPlansByOwnerType,
+    getFreePlanByOwnerType
 };
