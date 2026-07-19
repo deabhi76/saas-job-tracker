@@ -13,6 +13,9 @@ import AdminDashboard from "../pages/Admin/Dashboard";
 import Home
 from "../pages/Home";
 
+import PublicLayout
+from "../layouts/PublicLayout";
+
 import CompanyAdminLayout
 from "../layouts/CompanyAdminLayout";
 
@@ -51,19 +54,54 @@ from "../pages/CompanyAdmin/JobApplications";
 
 import BillingPage
 from "../pages/Billing/BillingPage";
-
+import OAuthSuccess
+from "../pages/Auth/OAuthSuccess";
 import CheckoutPage from "../pages/Billing/CheckoutPage";
-
+import CompanyGoogleSignup
+from "../pages/Auth/CompanyGoogleSignup";
 import PaymentSuccessPage from "../pages/Billing/PaymentSuccessPage";
+import Notifications from "../pages/Notifications/Notifications";
+
+import AnalyticsDashboard
+from "../pages/Analytics/AnalyticsDashboard";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+
+        <Route element={<PublicLayout />}>
+
+    <Route
+        path="/"
+        element={<Home />}
+    />
+
+    <Route
+        path="/jobs"
+        element={<CandidateJobs />}
+    />
+
+    <Route
+        path="/jobs/:id"
+        element={<CandidateJobDetails />}
+    />
+
+</Route>
+        {/* <Route path="/" element={<Home />} /> */}
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupSelectionPage />} />
+        
+        <Route
+    path="/oauth-success"
+    element={<OAuthSuccess />}
+/>
+
+<Route
+    path="/company-google-signup"
+    element={<CompanyGoogleSignup />}
+/>
 
         <Route
             path="/jobs"
@@ -133,6 +171,23 @@ export default function AppRoutes() {
         }
     />
 
+    <Route
+        path="notifications"
+        element={<Notifications />}
+    />
+
+    <Route
+
+    path="analytics"
+
+    element={
+        <AnalyticsDashboard
+            type="candidate"
+        />
+    }
+
+/>
+
 </Route>
 
         <Route
@@ -188,6 +243,33 @@ export default function AppRoutes() {
                 element={<JobApplications />}
             />
 
+            <Route
+        path="notifications"
+        element={<Notifications />}
+    />
+        <Route
+
+    path="analytics"
+
+    element={
+        <AnalyticsDashboard
+            type="recruiter"
+        />
+    }
+
+/>
+
+<Route
+
+    path="personal-analytics"
+
+    element={
+        <AnalyticsDashboard
+            type="candidate"
+        />
+    }
+
+/>
         </Route>
 
         <Route
@@ -237,6 +319,28 @@ export default function AppRoutes() {
         element={<CreateJob />}
         />
 
+        <Route
+        path="notifications"
+        element={<Notifications />}
+    />
+
+            <Route
+    path="jobs/:id/applications"
+    element={<JobApplications />}
+/>
+
+<Route
+
+    path="analytics"
+
+    element={
+        <AnalyticsDashboard 
+            type="company"
+        />
+    }
+
+/>
+
         </Route>
 
         <Route
@@ -252,7 +356,19 @@ export default function AppRoutes() {
         }
         />
 
-        <Route
+        {/* <Route
+
+    path="analytics"
+
+    element={
+        <AnalyticsDashboard
+            type="admin"
+        />
+    }
+
+/> */}
+
+        {/* <Route
             path="/company/jobs/:id/applications"
             element={
                 <ProtectedRoute
@@ -263,7 +379,7 @@ export default function AppRoutes() {
                     <JobApplications />
                 </ProtectedRoute>
             }
-        />
+        /> */}
 
         <Route
             path="/billing"

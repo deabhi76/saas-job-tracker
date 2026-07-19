@@ -1,170 +1,245 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { User } from "lucide-react";
+
 import { candidateSignup } from "../../api/authApi";
-import { useNavigate } from "react-router-dom";
-
-// import { login }
-//   from "../../api/authApi";
-
-import { setAuthToken }
-from "../../api/axios";
-
-import { useAuth }
-  from "../../context/AuthContext";
+import { setAuthToken } from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 export default function CandidateSignupPage() {
 
-  const {
-      setUser,
-      setAccessToken,
-      setIsAuthenticated
+    const {
+        setUser,
+        setAccessToken,
+        setIsAuthenticated
     } = useAuth();
-  
-    // const [email, setEmail] =
-    //   useState("");
-  
-    // const [password, setPassword] =
-    //   useState("");
 
-  const [formData, setFormData] = useState({
-    name:"",
-    email: "",
-    password: ""
-  });
+    const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+    const [formData, setFormData] = useState({
+
+        name: "",
+
+        email: "",
+
+        password: ""
+
     });
-  };
 
-  const navigate = useNavigate();
+    const handleChange = (e) => {
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+        setFormData({
 
-  try {
-    const response = await candidateSignup(formData);
+            ...formData,
 
-    console.log(
-    "SIGNUP RESPONSE:",
-    response.data
-);
+            [e.target.name]: e.target.value
 
-        const {
-            accessToken,
-            user
+        });
+
+    };
+
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+            const response =
+                await candidateSignup(formData);
+
+            const {
+
+                accessToken,
+
+                user
+
             } = response.data;
-    
+
             setAccessToken(accessToken);
-    
+
             setAuthToken(accessToken);
-    
-          setUser(user);
-    
-          setIsAuthenticated(true);
 
-    alert("Signup successful");
+            setUser(user);
 
-    navigate("/candidate");
+            setIsAuthenticated(true);
 
-  } catch (err) {
-    console.error(
-    "SIGNUP ERROR:",
-    err
-  );
+            alert("Signup successful");
 
-  console.error(
-    err.response?.data
-  );
+            navigate("/candidate");
 
-  alert(
-    err.response?.data?.message ||
-    err.message ||
-    "Signup failed"
-  );
-  }
-};
+        } catch (err) {
 
-  return (
-    <div className="container mt-5">
+            console.error(err);
 
-      <div className="row justify-content-center">
+            alert(
 
-        <div className="col-md-5">
+                err.response?.data?.message ||
 
-          <div className="card">
+                err.message ||
 
-            <div className="card-body">
+                "Signup failed"
 
-              <h2 className="mb-4">
-                Candidate Signup
-              </h2>
+            );
 
-              <form onSubmit={handleSubmit}>
+        }
 
-                <div className="mb-3">
+    };
 
-                <label className="form-label">
-                    Full Name
-                </label>
+    return (
 
-                <input
-                    type="text"
-                    name="name"
-                    className="form-control"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                />
+        <div className="container py-5">
 
-            </div>
+          <div className="mb-4">
 
-                <div className="mb-3">
+    <Link
+        to="/"
+        className="btn btn-outline-secondary"
+    >
+        ← Back to Home
+    </Link>
 
-                  <label>Email</label>
+</div>
 
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
+            <div className="row justify-content-center">
+
+                <div className="col-lg-6 col-md-8">
+
+                    <div className="card border-0 shadow-sm rounded-4">
+
+                        <div className="card-body p-5">
+
+                            <div className="text-center mb-4">
+
+                                <User
+                                    size={52}
+                                    className="text-primary mb-3"
+                                />
+
+                                <h2 className="fw-bold">
+                                    Candidate Signup
+                                </h2>
+
+                                <p className="text-muted mb-0">
+
+                                    Create your account and start
+                                    exploring job opportunities today.
+
+                                </p>
+
+                            </div>
+
+                            <form onSubmit={handleSubmit}>
+
+                                <div className="mb-3">
+
+                                    <label className="form-label">
+                                        Full Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        className="form-control"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                    />
+
+                                </div>
+
+                                <div className="mb-3">
+
+                                    <label className="form-label">
+                                        Email Address
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        className="form-control"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                    />
+
+                                </div>
+
+                                <div className="mb-4">
+
+                                    <label className="form-label">
+                                        Password
+                                    </label>
+
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        className="form-control"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                    />
+
+                                </div>
+
+                                <button
+                                    className="btn btn-primary w-100"
+                                    type="submit"
+                                >
+                                    Create Candidate Account
+                                </button>
+
+                            </form>
+
+                            <div className="text-center my-4 text-muted">
+
+                                OR
+
+                            </div>
+
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger w-100"
+                                onClick={() =>
+
+                                    window.location.href =
+                                        "http://localhost:5000/api/auth/google/candidate"
+
+                                }
+                            >
+
+                                Continue with Google
+
+                            </button>
+
+                            <div className="text-center mt-4">
+
+                                <small className="text-muted">
+
+                                    Already have an account?
+
+                                    {" "}
+
+                                    <Link
+                                        to="/login"
+                                        className="text-decoration-none"
+                                    >
+                                        Login
+                                    </Link>
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <div className="mb-3">
-
-                  <label>Password</label>
-
-                  <input
-                    type="password"
-                    name="password"
-                    className="form-control"
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-
-                </div>
-
-                <button
-                  className="btn btn-primary"
-                  type="submit"
-                >
-                  Sign Up
-                </button>
-
-              </form>
-
             </div>
-
-          </div>
 
         </div>
 
-      </div>
+    );
 
-    </div>
-  );
 }

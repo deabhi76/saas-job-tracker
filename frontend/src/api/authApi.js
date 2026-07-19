@@ -1,25 +1,38 @@
-import api from "./axios";
+import api, { authApi } from "./axios";
 
 export const login = (data) =>
-    api.post("/auth/login", data);
+    authApi.post("/auth/login", data);
 
 export const candidateSignup = (data) =>
-    api.post(
+    authApi.post(
         "/auth/signup/candidate",
         data
     );
 
 export const companySignup = (data) =>
-    api.post(
+    authApi.post(
         "/auth/signup/company",
         data
     );
 
 export const refreshToken = () =>
-    api.post("/auth/refresh");
+    authapi.post("/auth/refresh");
 
 export const logout = () =>
-    api.post("/auth/logout");
+    authApi.post("/auth/logout");
 
 export const getMe = () =>
     api.get("/auth/me");
+
+export const completeGoogleCompanySignup =
+(data) => {
+
+    return api.post(
+
+        "/auth/signup/company/google",
+
+        data
+
+    );
+
+};

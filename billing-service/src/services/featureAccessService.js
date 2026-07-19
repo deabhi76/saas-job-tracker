@@ -70,6 +70,14 @@ async (
         ownerType
     );
     
+    console.log("OWNER:", ownerId);
+console.log("OWNER TYPE:", ownerType);
+console.log("SUBSCRIPTION:", subscription);
+console.log("FEATURES:", subscription?.features);
+console.log(
+    "PREMIUM:",
+    subscription?.features?.premiumAnalytics
+);
 
     if (!subscription) {
         return false;

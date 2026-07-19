@@ -10,7 +10,7 @@ const redis =
     require('./config/redis');
 
 require(
-    './workers/billingEventWorker'
+    './workers/eventWorker'
 );
 
 

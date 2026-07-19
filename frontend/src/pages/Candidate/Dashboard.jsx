@@ -1,3 +1,5 @@
+
+
 import {
     useState,
     useEffect
@@ -63,83 +65,78 @@ export default function CandidateDashboard() {
             alert(
                 "Failed to load dashboard"
             );
+
+        }
+
+    };
+
+    const getStatusBadge = (status) => {
+
+        switch (status) {
+
+            case "ACCEPTED":
+                return "bg-success";
+
+            case "REJECTED":
+                return "bg-danger";
+
+            case "INTERVIEW":
+                return "bg-info";
+
+            default:
+                return "bg-warning text-dark";
+
         }
 
     };
 
     return (
 
-        <div className="container">
+        <div className="container py-4">
 
-            <h2 className="mb-4">
+            <h2 className="fw-bold mb-1">
                 Candidate Dashboard
             </h2>
 
-            <div className="row">
+            <p className="text-muted mb-4">
+                Track your applications and subscription at a glance.
+            </p>
 
-                <div className="col-md-4">
+            <div className="row g-4">
 
-                    <div className="card shadow-sm p-3 mb-4">
+                <div className="col-lg-6">
 
-                        <h5>
+                    <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
+
+                        <h6 className="text-muted mb-3">
                             Applications
-                        </h5>
+                        </h6>
 
-                        <h2>
+                        <h1 className="fw-bold">
                             {applications.length}
-                        </h2>
+                        </h1>
 
                     </div>
 
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-lg-6">
 
-                    <div className="card shadow-sm p-3 mb-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
 
-                        <h5>
+                        <h6 className="text-muted mb-3">
                             Subscription
-                        </h5>
+                        </h6>
 
-                        <h4>
-
-            {
-                subscription
-                    ? subscription.plan_name
-                    : "Loading..."
-            }
-
-        </h4>
-
-                    </div>
-
-                </div>
-
-                <div className="col-md-4">
-
-                    <div className="card shadow-sm p-3 mb-4">
-
-                        <h5>
-                            Resume
-                        </h5>
-
-                        <h4>
+                        <h3 className="fw-bold">
 
                             {
-                                applications.some(
-                                    app => app.resume_url
-                                )
-
-                                ?
-
-                                "Uploaded"
-
-                                :
-
-                                "Not Uploaded"
+                                subscription
+                                    ? subscription.plan_name
+                                    : "Loading..."
                             }
 
-                        </h4>
+                        </h3>
 
                     </div>
 
@@ -147,10 +144,8 @@ export default function CandidateDashboard() {
 
             </div>
 
-            <h3 className="mt-5 mb-3">
-
+            <h3 className="fw-bold mt-5 mb-4">
                 Recent Applications
-
             </h3>
 
             {
@@ -161,9 +156,15 @@ export default function CandidateDashboard() {
 
                 (
 
-                    <div className="alert alert-info">
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                        You haven't applied to any jobs yet.
+                        <h5 className="fw-semibold">
+                            No applications yet
+                        </h5>
+
+                        <p className="text-muted mb-0">
+                            Start applying to jobs to track them here.
+                        </p>
 
                     </div>
 
@@ -172,37 +173,39 @@ export default function CandidateDashboard() {
                 :
 
                 applications
-                .slice(0,5)
-                .map(application => (
+                    .slice(0, 5)
+                    .map(application => (
 
-                    <div
-                        key={application.id}
-                        className="card shadow-sm p-3 mb-3"
-                    >
+                        <div
+                            key={application.id}
+                            className="card border-0 shadow-sm rounded-4 p-4 mb-3"
+                        >
 
-                        <h5>
+                            <div className="d-flex justify-content-between align-items-center">
 
-                            {application.job_title}
+                                <div>
 
-                        </h5>
+                                    <h5 className="fw-semibold mb-2">
+                                        {application.title}
+                                    </h5>
 
-                        <p>
+                                    <p className="text-muted mb-2">
+                                        {application.company_name}
+                                    </p>
 
-                            <strong>
+                                    <span
+                                        className={`badge ${getStatusBadge(application.status)}`}
+                                    >
+                                        {application.status}
+                                    </span>
 
-                                Status:
+                                </div>
 
-                            </strong>
+                            </div>
 
-                            {" "}
+                        </div>
 
-                            {application.status}
-
-                        </p>
-
-                    </div>
-
-                ))
+                    ))
 
             }
 

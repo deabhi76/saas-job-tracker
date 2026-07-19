@@ -37,6 +37,10 @@ export default function CompanyAdminLayout() {
     {
     label:"Subscription",
     path: "/billing"
+    },
+    {
+    label:"Analytics",
+    path: "/company-admin/analytics"
     }
 
   ];

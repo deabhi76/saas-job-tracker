@@ -89,7 +89,9 @@ await publishEvent(
             job.id,
 
         title:
-            job.title
+            job.title,
+
+        companyName: job.company_name
     }
 );
 
@@ -266,7 +268,13 @@ await publishEvent(
         recruiterId:
             userId,
 
-        jobId
+        jobId,
+
+        companyId:job.company_id,
+
+        jobTitle: job.title,
+
+        companyName: job.company_name
     }
 );
 await redisClient.del(
@@ -361,7 +369,12 @@ await publishEvent(
         recruiterId:
             userId,
 
-        jobId
+        jobId,
+        companyId:job.company_id,
+
+        jobTitle: job.title,
+
+        companyName: job.company_name
     }
 );
 await redisClient.del(

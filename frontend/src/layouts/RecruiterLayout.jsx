@@ -38,6 +38,16 @@ export default function RecruiterLayout() {
     {
     label: "Subscription",
     path: "/billing"
+  },
+
+  {
+    label: "Recruiter Analytics",
+    path: "/recruiter/analytics"
+  },
+
+  {
+    label: "Personal Analytics",
+    path: "/recruiter/personal-analytics"
   }
 
 

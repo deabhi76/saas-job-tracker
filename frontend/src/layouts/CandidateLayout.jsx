@@ -28,6 +28,11 @@ export default function CandidateLayout() {
         {
             label: "Subscription",
             path: "/billing"
+        },
+
+        {
+            label: "Analytics",
+            path: "/candidate/analytics"
         }
 
     ];

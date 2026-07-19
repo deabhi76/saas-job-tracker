@@ -142,7 +142,11 @@ async function applyToJob({
         companyId:
             job.company_id,
 
-        jobId
+        jobId,
+
+        jobTitle: job.title,
+
+        companyName: job.company_name
     }
 );
 
@@ -397,8 +401,13 @@ if (status === 'ACCEPTED') {
 
             companyId:
         job.company_id,
+
             jobId:
-                application.job_id
+                application.job_id,
+
+            jobTitle: job.title,
+
+        companyName: job.company_name
         }
     );
 }
@@ -423,7 +432,11 @@ if (status === 'REJECTED') {
     companyId:
         job.company_id,
             jobId:
-                application.job_id
+                application.job_id,
+
+            jobTitle: job.title,
+
+        companyName: job.company_name
         }
     );
 }
@@ -449,7 +462,11 @@ if (status === 'REVIEWED') {
         job.company_id,
 
             jobId:
-                application.job_id
+                application.job_id,
+
+            jobTitle: job.title,
+
+        companyName: job.company_name
         }
     );
 }

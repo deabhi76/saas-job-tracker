@@ -15,7 +15,7 @@ async function getCompanyFeatures(
     const response =
         await billingApi.get(
 
-            '/api/billing/features/company',
+            '/billing/features/company',
 
             {
                 headers: {
@@ -36,7 +36,7 @@ async function getPersonalFeatures(
     const response =
         await billingApi.get(
 
-            '/api/billing/features/personal',
+            '/billing/features/personal',
 
             {
                 headers: {

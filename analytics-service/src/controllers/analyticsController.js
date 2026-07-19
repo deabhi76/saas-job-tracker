@@ -152,7 +152,7 @@ async function getCandidateAnalytics(
                 );
 
         if (
-            !features.applicationAnalytics
+            !features.premiumAnalytics
         ) {
 
             throw new AppError(

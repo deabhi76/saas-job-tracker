@@ -66,6 +66,35 @@ function verifyRefreshToken(token) {
     );
 }
 
+const generateCompanySignupToken = (payload) => {
+
+    return jwt.sign(
+
+        payload,
+
+        process.env.ACCESS_TOKEN_SECRET,
+
+        {
+            expiresIn: "10m"
+        }
+
+    );
+
+};
+
+const verifyCompanySignupToken =
+(token) => {
+
+    return jwt.verify(
+
+        token,
+
+        process.env.ACCESS_TOKEN_SECRET
+
+    );
+
+};
+
 module.exports = {
 
     generateAccessToken,
@@ -74,5 +103,7 @@ module.exports = {
 
     verifyAccessToken,
 
-    verifyRefreshToken
+    verifyRefreshToken,
+    generateCompanySignupToken,
+    verifyCompanySignupToken
 };

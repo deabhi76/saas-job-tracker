@@ -67,7 +67,9 @@ async function getNotificationsByUserId(
 
         WHERE user_id = $1
 
-        ORDER BY created_at DESC;
+        ORDER BY 
+          is_read ASC,
+          created_at DESC;
 
     `;
 

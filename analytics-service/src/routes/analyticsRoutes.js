@@ -71,7 +71,8 @@ router.get(
     verifyJWT,
 
     authorizeRoles(
-        'CANDIDATE'
+        'CANDIDATE',
+        'RECRUITER'
     ),
 
     analyticsController

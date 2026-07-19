@@ -4,6 +4,12 @@ import {
   useState
 } from "react";
 
+import {
+
+    getUnreadCount
+
+} from "../api/notificationApi";
+
 const AuthContext = createContext();
 
 export function AuthProvider({
@@ -27,6 +33,34 @@ const [loading, setLoading] =
     setIsLoggingOut] =
     useState(false);
 
+    const [
+
+    unreadCount,
+
+    setUnreadCount
+
+] = useState(0);
+
+const loadUnreadCount =
+async () => {
+
+    try {
+
+        const response =
+            await getUnreadCount();
+
+        setUnreadCount(
+            response.data.count
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+};
+
   return (
     <AuthContext.Provider
       value={{
@@ -43,7 +77,13 @@ const [loading, setLoading] =
         setLoading,
 
         isLoggingOut,
-        setIsLoggingOut
+        setIsLoggingOut,
+
+        unreadCount,
+
+        setUnreadCount,
+
+        loadUnreadCount,
       }}
     >
       {children}

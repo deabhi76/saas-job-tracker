@@ -92,7 +92,9 @@ async ({
             existingSubscription.id,
 
         newPlanId:
-            planId
+            planId,
+
+        companyAdminId
 
     });
 }
@@ -320,7 +322,9 @@ const updatedSubscription =
 const upgradeSubscription =
 async ({
     subscriptionId,
-    newPlanId
+    newPlanId,
+    companyAdminId
+
 }) => {
 
     console.log(
@@ -393,6 +397,32 @@ const paymentResult =
     );
 }
 
+await publishEvent(
+
+    eventTypes.PAYMENT_SUCCESS,
+
+    {
+
+        ownerId:
+            subscription.owner_id,
+
+        ownerType:
+            subscription.owner_type,
+
+        companyAdminId,
+
+        subscriptionId,
+
+        paymentId:
+            paymentResult.payment.id,
+
+        amount:
+            plan.monthly_price
+
+    }
+
+);
+
     const updatedSubscription =
         await subscriptionRepository
             .updatePlan(
@@ -401,6 +431,33 @@ const paymentResult =
 
                 newPlanId
             );
+
+
+    await publishEvent(
+
+    eventTypes.SUBSCRIPTION_CREATED,
+
+    {
+
+        ownerId:
+            updatedSubscription.owner_id,
+
+        ownerType:
+            updatedSubscription.owner_type,
+
+        companyAdminId,
+
+        subscriptionId,
+
+        planId:
+            newPlanId,
+
+        planName:
+            plan.name
+
+    }
+
+);
 
     await redis.del(
         `subscription:${subscription.owner_type}:${subscription.owner_id}`

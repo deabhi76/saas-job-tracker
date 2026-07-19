@@ -1,13 +1,11 @@
 import {
     useEffect,
     useState
-}
-from "react";
+} from "react";
 
 import {
     getRecruiters
-}
-from "../../api/recruiterApi";
+} from "../../api/recruiterApi";
 
 export default function Recruiters() {
 
@@ -43,6 +41,10 @@ export default function Recruiters() {
 
             console.error(err);
 
+            alert(
+                "Failed to load recruiters"
+            );
+
         } finally {
 
             setLoading(false);
@@ -54,76 +56,130 @@ export default function Recruiters() {
     if (loading) {
 
         return (
-            <h3>
-                Loading...
-            </h3>
+
+            <div className="container py-5 text-center">
+
+                <div className="spinner-border text-primary" />
+
+            </div>
+
         );
 
     }
 
     return (
 
-        <div>
+        <div className="container py-4">
 
-            <h2 className="mb-4">
+            <h2 className="fw-bold mb-1">
                 Recruiters
             </h2>
 
-            <table className="table table-striped">
+            <p className="text-muted mb-4">
+                Manage all recruiters associated with your company.
+            </p>
 
-                <thead>
+            {
 
-                    <tr>
+                recruiters.length === 0
 
-                        <th>
-                            Name
-                        </th>
+                ?
 
-                        <th>
-                            Email
-                        </th>
+                (
 
-                        {/* <th>
-                            Role
-                        </th> */}
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                    </tr>
+                        <h5 className="fw-semibold">
+                            No recruiters found
+                        </h5>
 
-                </thead>
+                        <p className="text-muted mb-0">
+                            Recruiters you create will appear here.
+                        </p>
 
-                <tbody>
+                    </div>
 
-                    {
+                )
 
-                        recruiters.map(
-                            recruiter => (
+                :
 
-                                <tr
-                                    key={recruiter.user_id}
-                                >
+                (
 
-                                    <td>
-                                        {recruiter.name}
-                                    </td>
+                    <div className="card border-0 shadow-sm rounded-4">
 
-                                    <td>
-                                        {recruiter.email}
-                                    </td>
+                        <div className="table-responsive">
 
-                                    {/* <td>
-                                        {recruiter.role}
-                                    </td> */}
+                            <table className="table align-middle mb-0">
 
-                                </tr>
+                                <thead className="table-light">
 
-                            )
-                        )
+                                    <tr>
 
-                    }
+                                        <th className="ps-4">
+                                            Name
+                                        </th>
 
-                </tbody>
+                                        <th>
+                                            Email
+                                        </th>
 
-            </table>
+                                        <th>
+                                            Role
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    {
+
+                                        recruiters.map(recruiter => (
+
+                                            <tr
+                                                key={recruiter.user_id}
+                                            >
+
+                                                <td className="ps-4 fw-semibold">
+
+                                                    {recruiter.name}
+
+                                                </td>
+
+                                                <td>
+
+                                                    {recruiter.email}
+
+                                                </td>
+
+                                                <td>
+
+                                                    <span className="badge bg-primary">
+
+                                                        {recruiter.role.replace("_", " ")}
+
+                                                    </span>
+
+                                                </td>
+
+                                            </tr>
+
+                                        ))
+
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                )
+
+            }
 
         </div>
 

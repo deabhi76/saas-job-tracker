@@ -1,51 +1,43 @@
 const multer =
-    require('multer');
+    require("multer");
 
-const path =
-    require('path');
+const {
+    CloudinaryStorage
+} = require(
+    "multer-storage-cloudinary"
+);
+
+const cloudinary =
+    require(
+        "../config/cloudinary"
+    );
 
 const storage =
-    multer.diskStorage({
+    new CloudinaryStorage({
 
-        destination:
-            (
-                req,
-                file,
-                cb
-            ) => {
+        cloudinary,
 
-                cb(
-                    null,
-                    'src/uploads/resumes'
-                );
-            },
+        params: async (
+            req,
+            file
+        ) => ({
 
-        filename:
-            (
-                req,
-                file,
-                cb
-            ) => {
+            folder:
+                "saas-job-tracker/resumes",
 
-                const fileName =
+            resource_type:
+                "auto",
 
-                    Date.now()
+            // format:
+            //     "pdf",
 
-                    + '-'
+            public_id:
+                `${Date.now()}-${Math.round(
+                    Math.random() * 1e9
+                )}`
 
-                    + Math.round(
-                        Math.random() * 1e9
-                    )
+        })
 
-                    + path.extname(
-                        file.originalname
-                    );
-
-                cb(
-                    null,
-                    fileName
-                );
-            }
     });
 
 const fileFilter =
@@ -58,7 +50,7 @@ const fileFilter =
         if (
 
             file.mimetype ===
-            'application/pdf'
+            "application/pdf"
 
         ) {
 
@@ -66,13 +58,17 @@ const fileFilter =
                 null,
                 true
             );
+
         }
 
         cb(
+
             new Error(
-                'Only PDF files allowed'
+                "Only PDF files allowed"
             )
+
         );
+
     };
 
 module.exports =
@@ -86,5 +82,7 @@ module.exports =
 
             fileSize:
                 5 * 1024 * 1024
+
         }
+
     });

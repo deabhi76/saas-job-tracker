@@ -9,7 +9,8 @@ const {
 const {
     generateAccessToken,
     generateRefreshToken,
-    verifyRefreshToken
+    verifyRefreshToken,
+    verifyCompanySignupToken
 } = require('../utils/jwt');
 const billingClient =
     require(
@@ -25,6 +26,9 @@ const companyRepository =
     require(
         '../repositories/companyRepository'
     );
+
+const sessionService =
+    require("./sessionService");
 
 async function signup(data) {
 
@@ -60,8 +64,7 @@ if (
     );
 }
 
-    const hashedPassword =
-        await hashPassword(data.password);
+   
 
 
     let companyId = null;
@@ -71,19 +74,32 @@ if (
     'COMPANY_ADMIN'
 ) {
 
-    const company =
-        await companyRepository
-            .createCompany(
+    return await createCompanyAdminUser({
 
-                data.companyName
+        name:
+            data.name,
 
-            );
+        email:
+            data.email,
 
-    companyId =
-        company.company_id;
+        companyName:
+            data.companyName,
+
+        password:
+            data.password,
+
+        authProvider:
+            "LOCAL",
+
+        googleId:
+            null
+
+    });
 
 }
 
+ const hashedPassword =
+        await hashPassword(data.password);
 
     const user = {
 
@@ -127,26 +143,26 @@ console.log(
 );
 console.log("Before billing call");
 
-if (
+// if (
 
-    createdUser.role ===
-    'COMPANY_ADMIN'
+//     createdUser.role ===
+//     'COMPANY_ADMIN'
 
-) {
+// ) {
 
-    await billingClient
-        .createDefaultSubscription(
+//     await billingClient
+//         .createDefaultSubscription(
 
-            createdUser.companyId,
+//             createdUser.companyId,
 
-            'COMPANY',
+//             'COMPANY',
 
-            process.env
-                .FREE_COMPANY_PLAN_ID,
+//             process.env
+//                 .FREE_COMPANY_PLAN_ID,
 
-            createdUser.userId
-        );
-}
+//             createdUser.userId
+//         );
+// }
 
 if (
 
@@ -393,11 +409,164 @@ async function getRecruiters(
         );
 }
 
+async function completeGoogleCompanySignup({
+    token,
+    companyName
+}) {
+
+    let decoded;
+
+    try {
+
+        decoded =
+            verifyCompanySignupToken(
+                token
+            );
+
+    } catch (err) {
+
+        throw new AppError(
+            "Invalid or expired signup token",
+            401
+        );
+
+    }
+
+    const user =
+        await createCompanyAdminUser({
+
+            name:
+                decoded.name,
+
+            email:
+                decoded.email,
+
+            companyName,
+
+            password:
+                null,
+
+            authProvider:
+                "GOOGLE",
+
+            googleId:
+                decoded.googleId
+
+        });
+
+    const {
+
+        accessToken,
+
+        refreshToken
+
+    } =
+        await sessionService
+            .createSession(user);
+
+    return {
+
+        accessToken,
+
+        refreshToken,
+
+        user
+
+    };
+
+}
+
+async function createCompanyAdminUser({
+
+    name,
+
+    email,
+
+    companyName,
+
+    password,
+
+    authProvider,
+
+    googleId
+
+}) {
+
+    const existingUser =
+        await userRepository.findByEmail(email);
+
+    if (existingUser) {
+
+        throw new AppError(
+            "User already exists",
+            400
+        );
+    }
+
+    let hashedPassword = null;
+
+    if (password) {
+
+        hashedPassword =
+            await hashPassword(password);
+
+    }
+
+    const company =
+        await companyRepository
+            .createCompany(companyName);
+
+    const user = {
+
+        companyId:
+            company.company_id,
+
+        companyName,
+
+        name,
+
+        email,
+
+        password:
+            hashedPassword,
+
+        role:
+            "COMPANY_ADMIN",
+
+        authProvider,
+
+        googleId
+
+    };
+
+    await userRepository.createUser(user);
+
+    const createdUser =
+        await userRepository.findByEmail(email);
+
+    await billingClient
+        .createDefaultSubscription(
+
+            createdUser.companyId,
+
+            "COMPANY",
+
+            process.env.FREE_COMPANY_PLAN_ID,
+
+            createdUser.userId
+
+        );
+
+    return createdUser;
+
+}
+
 module.exports = {
     signup,
     createRecruiter,
     getRecruiters,
     login,
     refreshAccessToken,
-    logout
+    logout,
+    completeGoogleCompanySignup
 };

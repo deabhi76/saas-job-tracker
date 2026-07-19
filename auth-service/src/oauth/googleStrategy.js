@@ -10,6 +10,8 @@ const userRepository =
 
 const AppError =
     require('../errors/AppError');
+const billingClient =
+    require("../clients/billingClient");
 
 passport.use(
 
@@ -44,7 +46,8 @@ passport.use(
     done
 
 ) => {
-
+    console.log("STATE:", req.query.state);
+    console.log("PROFILE:", profile?.emails?.[0]?.value);
     try {
 
         const role =
@@ -100,21 +103,48 @@ const email =
         .value
         .toLowerCase();
 
-        let user =
-            await userRepository
-                .findByEmail(
+        console.log("Before findByEmail");
 
-                    email
-                );
+let user =
+    await userRepository.findByEmail(email);
+
+
+
+console.log("After findByEmail", user);
 
         if (!user) {
+
+            if (role === "COMPANY_ADMIN") {
+
+        return done(null, {
+
+            oauthSignup: true,
+
+            email,
+
+            name: profile.displayName,
+
+            googleId: profile.id,
+
+            role
+
+        });
+
+    }
 
             const newUser = {
 
                 companyId: null,
 
+                companyName: null,
+
+                name:
+                    profile.displayName,
+
                 email:
                     email,
+
+                password: null,
 
                 role,
 
@@ -132,6 +162,18 @@ const email =
                     .createUser(
                         newUser
                     );
+
+            await billingClient
+    .createDefaultSubscription(
+
+        user.userId,
+
+        "CANDIDATE",
+
+        process.env
+            .FREE_CANDIDATE_PLAN_ID
+
+    );
         }
         else{
 
@@ -155,7 +197,7 @@ const email =
         done(null, user);
 
     } catch (err) {
-
+            console.error("GOOGLE STRATEGY ERROR:", err);
         done(err, null);
     }
 }

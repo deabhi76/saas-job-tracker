@@ -22,7 +22,9 @@ const {
     getMe,
     logout,
     googleCallback,
-    getRecruiters
+    getRecruiters,
+    completeGoogleCompanySignup
+
 } = require('../controllers/authController');
 
 
@@ -57,7 +59,13 @@ router.post(
     signupCandidate
 );
 
+router.post(
 
+    "/signup/company/google",
+
+    completeGoogleCompanySignup
+
+);
 
 router.post(
 
@@ -155,13 +163,20 @@ router.get(
     passport.authenticate(
         'google',
         {
-            session: false
-
+            session: false,
+            failureRedirect: '/auth/google/failure'
         }
     ),
-    
+
     googleCallback
-    
+
+);
+
+router.get(
+    '/google/failure',
+    (req, res) => {
+        res.send('GOOGLE AUTH FAILED');
+    }
 );
 
 router.get(

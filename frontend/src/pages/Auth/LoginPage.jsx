@@ -1,182 +1,277 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LogIn } from "lucide-react";
 
-import { login }
-  from "../../api/authApi";
-
-import { setAuthToken }
-from "../../api/axios";
-
-import { useNavigate }
-  from "react-router-dom";
-
-import { useAuth }
-  from "../../context/AuthContext";
+import { login } from "../../api/authApi";
+import { setAuthToken } from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const {
-    setUser,
-    setAccessToken,
-    setIsAuthenticated
-  } = useAuth();
+    const location = useLocation();
 
-  const [email, setEmail] =
-    useState("");
+    const from =
+        location.state?.from?.pathname;
 
-  const [password, setPassword] =
-    useState("");
+    const {
+        setUser,
+        setAccessToken,
+        setIsAuthenticated
+    } = useAuth();
 
-  const handleSubmit = async (e) => {
+    const [email, setEmail] =
+        useState("");
 
-    e.preventDefault();
+    const [password, setPassword] =
+        useState("");
 
-    try {
+    const handleSubmit = async (e) => {
 
-      const response =
-        await login({
-          email,
-          password
-        });
+        e.preventDefault();
 
-      const {
-        accessToken,
-        user
-        } = response.data;
+        try {
 
-        setAccessToken(accessToken);
+            const response =
+                await login({
+                    email,
+                    password
+                });
 
-        setAuthToken(accessToken);
+            const {
+                accessToken,
+                user
+            } = response.data;
 
-      setUser(user);
+            setAccessToken(accessToken);
 
-      setIsAuthenticated(true);
+            setAuthToken(accessToken);
 
-      switch (user.role) {
+            setUser(user);
 
-        case "CANDIDATE":
+            setIsAuthenticated(true);
 
-          navigate(
-            "/candidate"
-          );
+            if (from) {
 
-          break;
+                navigate(from, {
+                    replace: true
+                });
 
-        case "RECRUITER":
+            } else {
 
-          navigate(
-            "/recruiter"
-          );
+                switch (user.role) {
 
-          break;
+                    case "CANDIDATE":
 
-        case "COMPANY_ADMIN":
+                        navigate("/candidate");
 
-          navigate(
-            "/company-admin"
-          );
+                        break;
 
-          break;
+                    case "RECRUITER":
 
-        case "SUPER_ADMIN":
+                        navigate("/recruiter");
 
-          navigate(
-            "/admin/dashboard"
-          );
+                        break;
 
-          break;
+                    case "COMPANY_ADMIN":
 
-        default:
+                        navigate("/company-admin");
 
-          navigate("/login");
-      }
+                        break;
 
-    } catch (err) {
+                    case "SUPER_ADMIN":
 
-      console.error(err);
+                        navigate("/admin/dashboard");
 
-      alert(
-        err.response?.data?.message ||
-        "Login failed"
-      );
-    }
-  };
+                        break;
 
-  return (
-    <div className="container mt-5">
+                    default:
 
-      <div className="row justify-content-center">
+                        navigate("/");
 
-        <div className="col-md-5">
+                }
 
-          <div className="card">
+            }
 
-            <div className="card-body">
+        } catch (err) {
 
-              <h2 className="mb-4">
-                Login
-              </h2>
+            console.error(err);
 
-              <form
-                onSubmit={handleSubmit}
-              >
+            alert(
+                err.response?.data?.message ||
+                "Login failed"
+            );
 
-                <div className="mb-3">
+        }
 
-                  <label>
-                    Email
-                  </label>
+    };
 
-                  <input
-                    type="email"
-                    className="form-control"
-                    value={email}
-                    onChange={(e) =>
-                      setEmail(
-                        e.target.value
-                      )
-                    }
-                  />
+    return (
+
+        <div className="container py-5">
+
+          <div className="mb-4">
+
+    <Link
+        to="/"
+        className="btn btn-outline-secondary"
+    >
+        ← Back to Home
+    </Link>
+
+</div>
+
+            <div className="row justify-content-center">
+
+              
+
+                <div className="col-lg-6 col-md-8">
+
+                  
+
+                    <div className="card border-0 shadow-sm rounded-4">
+
+                        <div className="card-body p-5">
+
+                            <div className="text-center mb-4">
+
+                                <LogIn
+                                    size={52}
+                                    className="text-primary mb-3"
+                                />
+
+                                <h2 className="fw-bold">
+                                    Welcome Back
+                                </h2>
+
+                                <p className="text-muted mb-0">
+
+                                    Sign in to continue to
+                                    SaaS Job Tracker.
+
+                                </p>
+
+                            </div>
+
+                            <form
+                                onSubmit={handleSubmit}
+                            >
+
+                                <div className="mb-3">
+
+                                    <label className="form-label">
+                                        Email Address
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        className="form-control"
+                                        value={email}
+                                        onChange={(e) =>
+                                            setEmail(
+                                                e.target.value
+                                            )
+                                        }
+                                        required
+                                    />
+
+                                </div>
+
+                                <div className="mb-4">
+
+                                    <label className="form-label">
+                                        Password
+                                    </label>
+
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        value={password}
+                                        onChange={(e) =>
+                                            setPassword(
+                                                e.target.value
+                                            )
+                                        }
+                                        required
+                                    />
+
+                                </div>
+
+                                <button
+                                    className="btn btn-primary w-100"
+                                    type="submit"
+                                >
+                                    Login
+                                </button>
+
+                            </form>
+
+                            <div className="text-center my-4 text-muted">
+
+                                OR
+
+                            </div>
+
+                            <button
+                                type="button"
+                                className="btn btn-outline-danger w-100 mb-3"
+                                onClick={() =>
+
+                                    window.location.href =
+                                        "http://localhost:5000/api/auth/google/candidate"
+
+                                }
+                            >
+
+                                Continue as Candidate with Google
+
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-outline-success w-100"
+                                onClick={() =>
+
+                                    window.location.href =
+                                        "http://localhost:5000/api/auth/google/company"
+
+                                }
+                            >
+
+                                Continue as Company with Google
+
+                            </button>
+
+                            <div className="text-center mt-4">
+
+                                <small className="text-muted">
+
+                                    Don't have an account?
+
+                                    {" "}
+
+                                    <Link
+                                        to="/signup"
+                                        className="text-decoration-none"
+                                    >
+                                        Create one
+                                    </Link>
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
-
-                <div className="mb-3">
-
-                  <label>
-                    Password
-                  </label>
-
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={password}
-                    onChange={(e) =>
-                      setPassword(
-                        e.target.value
-                      )
-                    }
-                  />
-
-                </div>
-
-                <button
-                  className="btn btn-primary"
-                  type="submit"
-                >
-                  Login
-                </button>
-
-              </form>
 
             </div>
 
-          </div>
-
         </div>
 
-      </div>
+    );
 
-    </div>
-  );
 }

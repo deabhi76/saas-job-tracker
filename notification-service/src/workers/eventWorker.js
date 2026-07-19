@@ -165,7 +165,7 @@ const eventWorker =
                 'Application Submitted',
 
             message:
-                'Your application was submitted successfully.'
+    `Your application for "${job.data.jobTitle}" at ${job.data.companyName} has been submitted successfully.`
         });
 
         await notificationService
@@ -181,7 +181,7 @@ const eventWorker =
             'New Application Received',
 
         message:
-            'A candidate applied to one of your jobs.'
+            `A candidate applied your job "${job.data.jobTitle}".`
     });
 
     break;
@@ -201,7 +201,7 @@ const eventWorker =
                 'Application Reviewed',
 
             message:
-                'Your application has been reviewed.'
+    `Your application for "${job.data.jobTitle}" at ${job.data.companyName} has been been reviewed.`
         });
 
     break;
@@ -221,7 +221,7 @@ const eventWorker =
                 'Application Accepted',
 
             message:
-                'Congratulations! Your application has been accepted.'
+    `Congratulations! Your application for "${job.data.jobTitle}" at ${job.data.companyName} has been accepted.`
         });
 
     break;
@@ -240,35 +240,75 @@ const eventWorker =
             title:
                 'Application Rejected',
 
-            message:
-                'Your application was not selected.'
+           message:
+    `Your application for "${job.data.jobTitle}" at ${job.data.companyName} was not selected.`
         });
 
     break;
 
-    case 'JOB_CREATED':
+    case "JOB_CREATED":
 
-    console.log(
-        `Job ${job.data.jobId} created`
-    );
+    await notificationService
+        .createNotification({
+
+            userId:
+                job.data.recruiterId,
+
+            type:
+                "JOB_CREATED",
+
+            title:
+                "Job Created",
+
+            message:
+                `"${job.data.title}" has been posted successfully.`
+
+        });
+
+    break;
+
+case "JOB_UPDATED":
+
+    await notificationService
+        .createNotification({
+
+            userId:
+                job.data.recruiterId,
+
+            type:
+                "JOB_UPDATED",
+
+            title:
+                "Job Updated",
+
+            message:
+                `"${job.data.title}" has been updated successfully.`
+
+        });
 
     break;
 
-case 'JOB_UPDATED':
+case "JOB_DELETED":
 
-    console.log(
-        `Job ${job.data.jobId} updated`
-    );
+    await notificationService
+        .createNotification({
+
+            userId:
+                job.data.recruiterId,
+
+            type:
+                "JOB_DELETED",
+
+            title:
+                "Job Deleted",
+
+            message:
+                `"${job.data.title}" has been deleted.`
+
+        });
 
     break;
 
-case 'JOB_DELETED':
-
-    console.log(
-        `Job ${job.data.jobId} deleted`
-    );
-
-    break;
 
     default:
         console.log(

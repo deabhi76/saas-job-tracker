@@ -1,3 +1,5 @@
+
+
 import {
     useState,
     useEffect
@@ -31,6 +33,12 @@ export default function CompanyAdminDashboard() {
         subscription,
         setSubscription
     ] = useState(null);
+
+    useEffect(() => {
+
+        loadDashboard();
+
+    }, []);
 
     const loadDashboard =
     async () => {
@@ -74,103 +82,82 @@ export default function CompanyAdminDashboard() {
             alert(
                 "Failed to load dashboard"
             );
+
         }
+
     };
-
-    useEffect(() => {
-
-        loadDashboard();
-
-    }, []);
 
     return (
 
-        <div className="container">
+        <div className="container py-4">
 
-            <h2 className="mb-4">
-                Company Admin Dashboard
+            <h2 className="fw-bold mb-1">
+                Company Dashboard
             </h2>
 
-            <div className="row">
+            <p className="text-muted mb-4">
+                Manage your recruiters, jobs and subscription.
+            </p>
 
-                <div className="col-md-3">
+            <div className="row g-4">
 
-                    <div className="card shadow-sm p-3 mb-4">
+                <div className="col-lg-4">
 
-                        <h5>
+                    <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
+
+                        <h6 className="text-muted mb-3">
                             Recruiters
-                        </h5>
+                        </h6>
 
-                        <h2>
+                        <h1 className="fw-bold">
                             {recruiters.length}
-                        </h2>
+                        </h1>
 
                     </div>
 
                 </div>
 
-                <div className="col-md-3">
+                <div className="col-lg-4">
 
-                    <div className="card shadow-sm p-3 mb-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
 
-                        <h5>
+                        <h6 className="text-muted mb-3">
                             Company Jobs
-                        </h5>
+                        </h6>
 
-                        <h2>
+                        <h1 className="fw-bold">
                             {jobs.length}
-                        </h2>
+                        </h1>
 
                     </div>
 
                 </div>
 
-                <div className="col-md-3">
+                <div className="col-lg-4">
 
-                    <div className="card shadow-sm p-3 mb-4">
+                    <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
 
-                        <h5>
+                        <h6 className="text-muted mb-3">
                             Subscription
-                        </h5>
+                        </h6>
 
-                        <h4>
-
-            {
-                subscription
-                    ? subscription.plan_name
-                    : "Loading..."
-            }
-
-        </h4>
-
-                    </div>
-
-                </div>
-
-                <div className="col-md-3">
-
-                    <div className="card shadow-sm p-3 mb-4">
-
-                        <h5>
-                            Premium Analytics
-                        </h5>
-
-                        <h4>
+                        <h3 className="fw-bold">
 
                             {
-                                subscription?.features
-                                    ?.premiumAnalytics
+
+                                subscription
 
                                     ?
 
-                                    "Enabled"
+                                    subscription.plan_name
 
                                     :
 
-                                    "Disabled"
+                                    "Loading..."
+
                             }
 
-                        </h4>
+                        </h3>
 
                     </div>
 
@@ -178,7 +165,7 @@ export default function CompanyAdminDashboard() {
 
             </div>
 
-            <h3 className="mt-5 mb-3">
+            <h3 className="fw-bold mt-5 mb-4">
                 Recent Jobs
             </h3>
 
@@ -190,9 +177,15 @@ export default function CompanyAdminDashboard() {
 
                 (
 
-                    <div className="alert alert-info">
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                        No jobs posted yet.
+                        <h5 className="fw-semibold">
+                            No jobs posted yet
+                        </h5>
+
+                        <p className="text-muted mb-0">
+                            Create your first job posting to start hiring.
+                        </p>
 
                     </div>
 
@@ -201,61 +194,49 @@ export default function CompanyAdminDashboard() {
                 :
 
                 jobs
-                .slice(0, 5)
-                .map(job => (
+                    .slice(0, 5)
+                    .map(job => (
 
-                    <div
-                        key={job.id}
-                        className="card shadow-sm p-3 mb-3"
-                    >
+                        <div
+                            key={job.id}
+                            className="card border-0 shadow-sm rounded-4 p-4 mb-3"
+                        >
 
-                        <h5>
-                            {job.title}
-                        </h5>
+                            <h5 className="fw-semibold mb-2">
+                                {job.title}
+                            </h5>
 
-                        <p className="mb-1">
+                            <p className="mb-3">
 
-                            <strong>
-                                Location:
-                            </strong>
+                                <strong>
+                                    Salary:
+                                </strong>
 
-                            {" "}
+                                {" "}
 
-                            {job.location}
+                                ₹{job.salary_min}
 
-                        </p>
+                                {" - "}
 
-                        <p className="mb-1">
+                                ₹{job.salary_max}
 
-                            <strong>
-                                Salary:
-                            </strong>
+                            </p>
 
-                            {" "}
+                            <div>
 
-                            ₹{job.salary_min}
+                                <span className="badge bg-secondary me-2">
+                                    {job.location}
+                                </span>
 
-                            {" - "}
+                                <span className="badge bg-primary">
+                                    {job.employment_type}
+                                </span>
 
-                            ₹{job.salary_max}
+                            </div>
 
-                        </p>
+                        </div>
 
-                        <p className="mb-0">
-
-                            <strong>
-                                Employment Type:
-                            </strong>
-
-                            {" "}
-
-                            {job.employment_type}
-
-                        </p>
-
-                    </div>
-
-                ))
+                    ))
 
             }
 

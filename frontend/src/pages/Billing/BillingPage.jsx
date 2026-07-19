@@ -1,7 +1,12 @@
+
 import {
     useState,
     useEffect
 } from "react";
+
+import {
+    useNavigate
+} from "react-router-dom";
 
 import {
     getPlans,
@@ -12,416 +17,572 @@ import {
 } from "../../api/billingApi";
 
 import {
-    useNavigate
-} from "react-router-dom";
-
-import { useAuth } from "../../context/AuthContext";
-
-
+    useAuth
+} from "../../context/AuthContext";
 
 export default function BillingPage() {
 
-    const navigate=useNavigate();
+    const navigate = useNavigate();
+
+    const { user } = useAuth();
 
     const [
-    plans,
-    setPlans
-] = useState([]);
+        plans,
+        setPlans
+    ] = useState([]);
 
-const [
-    payments,
-    setPayments
-] = useState([]);
+    const [
+        payments,
+        setPayments
+    ] = useState([]);
 
-const [
-    subscription,
-    setSubscription
-] = useState(null);
+    const [
+        subscription,
+        setSubscription
+    ] = useState(null);
 
-useEffect(() => {
+    useEffect(() => {
 
-    loadPlans();
-
-    loadSubscription();
-
-    loadPayments();
-
-
-}, []);
-
-const { user } = useAuth();
-
-const handleBack = () => {
-
-    switch (user.role) {
-
-        case "CANDIDATE":
-            navigate("/candidate");
-            break;
-
-        case "RECRUITER":
-            navigate("/recruiter");
-            break;
-
-        case "COMPANY_ADMIN":
-            navigate("/company-admin");
-            break;
-
-        default:
-            navigate("/");
-    }
-
-};
-
-const loadPayments =
-async () => {
-
-    const response =
-        await getPayments();
-     console.log(
-        "PAYMENTS:",
-        response.data.data
-    );
-    setPayments(
-        response.data.data
-    );
-};
-
-const loadPlans =
-async () => {
-
-    try {
-
-        const response =
-            await getPlans();
-
-        setPlans(
-            response.data.data
-        );
-
-    } catch (err) {
-
-        console.error(err);
-
-        alert(
-            "Failed to load plans"
-        );
-    }
-};
-
-const loadSubscription =
-async () => {
-
-    try {
-
-        const response =
-            await getSubscription();
-
-        console.log(response.data);
-
-        console.log(
-            response.data.data
-        );
-
-        setSubscription(
-            response.data.data
-        );
-
-    } catch (err) {
-
-        console.error(err);
-    }
-};
-
-const buyPlan =
-async (
-    planId
-) => {
-
-    try {
-
-        await purchaseSubscription(
-            planId
-        );
-
-        alert(
-            "Plan purchased"
-        );
-
-        loadSubscription();
-
-    } catch (err) {
-
-        console.error(err);
-
-        alert(
-            "Purchase failed"
-        );
-    }
-};
-
-const handleDowngrade =
-async () => {
-
-    try {
-
-        await cancelSubscription(
-            subscription.id
-        );
-
-        alert(
-            "Downgraded to Free Plan"
-        );
+        loadPlans();
 
         loadSubscription();
 
         loadPayments();
 
-    } catch (err) {
+    }, []);
 
-        console.error(err);
+    const handleBack = () => {
 
-        console.error(
-            err.response?.data
+        switch (user.role) {
+
+            case "CANDIDATE":
+
+                navigate("/candidate");
+
+                break;
+
+            case "RECRUITER":
+
+                navigate("/recruiter");
+
+                break;
+
+            case "COMPANY_ADMIN":
+
+                navigate("/company-admin");
+
+                break;
+
+            default:
+
+                navigate("/");
+
+        }
+
+    };
+
+    const loadPayments =
+        async () => {
+
+            try {
+
+                const response =
+                    await getPayments();
+
+                setPayments(
+                    response.data.data
+                );
+
+            } catch (err) {
+
+                console.error(err);
+
+            }
+
+        };
+
+    const loadPlans =
+        async () => {
+
+            try {
+
+                const response =
+                    await getPlans();
+
+                setPlans(
+                    response.data.data
+                );
+
+            } catch (err) {
+
+                console.error(err);
+
+                alert(
+                    "Failed to load plans"
+                );
+
+            }
+
+        };
+
+    const loadSubscription =
+        async () => {
+
+            try {
+
+                const response =
+                    await getSubscription();
+
+                setSubscription(
+                    response.data.data
+                );
+
+            } catch (err) {
+
+                console.error(err);
+
+            }
+
+        };
+
+    const handleDowngrade =
+        async () => {
+
+            try {
+
+                await cancelSubscription(
+                    subscription.id
+                );
+
+                alert(
+                    "Downgraded to Free Plan"
+                );
+
+                loadSubscription();
+
+                loadPayments();
+
+            } catch (err) {
+
+                console.error(err);
+
+                alert(
+
+                    err.response?.data?.error ||
+
+                    err.response?.data?.message ||
+
+                    "Downgrade failed"
+
+                );
+
+            }
+
+        };
+
+    const currentPlan =
+        plans.find(
+
+            p =>
+
+                p.id ===
+
+                subscription?.plan_id
+
         );
-
-        alert(
-            err.response?.data?.error ||
-            err.response?.data?.message ||
-            "Downgrade failed"
-        );
-    }
-};
-
-const currentPlan =
-    plans.find(
-        p =>
-        p.id ===
-        subscription?.plan_id
-    );
-
-    console.log("Plans:", plans);
-
-console.log("Subscription:", subscription);
-
-// const currentPlan =
-//     plans.find(
-//         p => p.id === subscription?.plan_id
-//     );
-
-console.log("Current Plan:", currentPlan);
 
     return (
-        <div className="container mt-4">
 
-    <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="container py-4">
 
-    <button
-        className="btn btn-outline-secondary"
-        onClick={handleBack}
-    >
-        ← Back
-    </button>
-
-    <h2 className="mb-0">
-        Subscription Plans
-    </h2>
-
-    <div></div>
-
-</div>
-
-  
-    <div className="row">
-
-        {plans.map(plan => (
-
-            <div
-                key={plan.id}
-                className="col-md-4"
+            <button
+                className="btn btn-outline-secondary mb-4"
+                onClick={handleBack}
             >
+                ← Back to Dashboard
+            </button>
 
-                <div className="card p-3 mb-3">
+            <h2 className="fw-bold mb-1">
+                Subscription Plans
+            </h2>
 
-                    <h4>
-                        {plan.name}
-                    </h4>
+            <p className="text-muted mb-5">
+                Manage your subscription and billing history.
+            </p>
 
-                    <p>
+            <div className="row g-4">
 
-                        Price:
+                {
 
-                        {" "}
+                    plans.map(plan => (
 
-                        ₹{plan.monthly_price}
+                        <div
+                            key={plan.id}
+                            className="col-lg-4"
+                        >
 
-                    </p>
+                            <div className="card border-0 shadow-sm rounded-4 h-100">
 
-                    <ul>
+                                <div className="card-body p-4 d-flex flex-column">
 
-{
+                                    <h3 className="fw-bold mb-2">
 
-Object.entries(
-    plan.features
-).map(
+                                        {plan.name}
 
-([key,value]) => (
+                                    </h3>
 
-<li key={key}>
+                                    <h4 className="text-primary mb-4">
 
-    {key}
+                                        ₹{plan.monthly_price}
 
-    :
+                                        <small className="text-muted fs-6">
 
-    {" "}
+                                            /month
 
-    {String(value)}
+                                        </small>
 
-</li>
+                                    </h4>
 
-)
+                                    <ul className="list-unstyled flex-grow-1">
 
-)
+                                        {
 
-}
+                                            Object.entries(
+                                                plan.features
+                                            ).map(
 
-</ul>
+                                                ([key, value]) => (
+
+                                                    <li
+                                                        key={key}
+                                                        className="mb-2"
+                                                    >
+
+                                                         {
+
+                                                            typeof value === "boolean"
+
+                                                                ?
+
+                                                                (
+
+                                                                    value
+
+                                                                        ? "✅"
+
+                                                                        : "❌"
+
+                                                                )
+
+                                                                :
+
+                                                                "✅"
+
+                                                        }
+
+                                                        {" "}
 
 
-{
-subscription?.plan_id === plan.id
+                                                        {
 
-?
+                                                            key
 
-(
-    <button
-        disabled
-        className="btn btn-success"
-    >
-        Current Plan
-    </button>
-)
+                                                                .replaceAll("_", " ")
 
-:
+                                                                .replace(
 
-(
-    <button
+                                                                    /\b\w/g,
 
-        className={
-            plan.monthly_price >
-            currentPlan?.monthly_price
+                                                                    c =>
 
-                ? "btn btn-primary"
+                                                                        c.toUpperCase()
 
-                : "btn btn-warning"
-        }
+                                                                )
 
-        onClick={() =>
+                                                        }
 
-            plan.monthly_price <
-            currentPlan?.monthly_price
+                                                        :{" "}
 
-                ?
+                                                        {
 
-                handleDowngrade()
+                                                            typeof value === "boolean"
 
-                :
+                                                                ?
 
-                navigate(
-            `/billing/checkout/${plan.id}`
-        )
-        }
+                                                                (
 
-    >
+                                                                    value
 
-        {
-            plan.monthly_price >
-            currentPlan?.monthly_price
+                                                                        ? "Yes"
 
-                ?
+                                                                        : "No"
 
-                "Upgrade"
+                                                                )
 
-                :
+                                                                :
 
-                "Downgrade"
-        }
+                                                                value
 
-    </button>
-)
-}
+                                                        }
 
-                </div>
+                                                    </li>
+
+                                                )
+
+                                            )
+
+                                        }
+
+                                    </ul>
+
+                                    {
+
+                                        subscription?.plan_id === plan.id
+
+                                            ?
+
+                                            (
+
+                                                <button
+
+                                                    disabled
+
+                                                    className="btn btn-success w-100"
+
+                                                >
+
+                                                    Current Plan
+
+                                                </button>
+
+                                            )
+
+                                            :
+
+                                            (
+
+                                                <button
+
+                                                    className={`btn w-100 ${
+
+                                                        plan.monthly_price >
+
+                                                        currentPlan?.monthly_price
+
+                                                            ?
+
+                                                            "btn-primary"
+
+                                                            :
+
+                                                            "btn-warning"
+
+                                                    }`}
+
+                                                    onClick={() =>
+
+                                                        plan.monthly_price <
+
+                                                            currentPlan?.monthly_price
+
+                                                            ?
+
+                                                            handleDowngrade()
+
+                                                            :
+
+                                                            navigate(
+
+                                                                `/billing/checkout/${plan.id}`
+
+                                                            )
+
+                                                    }
+
+                                                >
+
+                                                    {
+
+                                                        plan.monthly_price >
+
+                                                            currentPlan?.monthly_price
+
+                                                            ?
+
+                                                            "Upgrade"
+
+                                                            :
+
+                                                            "Downgrade"
+
+                                                    }
+
+                                                </button>
+
+                                            )
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    ))
+
+                }
 
             </div>
 
-        ))}
+            <h3 className="fw-bold mt-5 mb-2">
 
-    </div>
+                Payment History
 
-    <h3 className="mt-5">
-    Payment History
-</h3>
+            </h3>
 
-<table className="table">
+            <p className="text-muted mb-4">
 
-    <thead>
+                View all your previous subscription payments.
 
-        <tr>
+            </p>
 
-            <th>
-                Amount
-            </th>
+            {
 
-            <th>
-                Status
-            </th>
+                payments.length === 0
 
-            <th>
-                Date
-            </th>
+                    ?
 
-        </tr>
+                    (
 
-    </thead>
+                        <div className="alert alert-info">
 
-    <tbody>
+                            No payments found.
 
-        {
-            payments.map(
-                payment => (
+                        </div>
 
-                <tr
-                    key={payment.id}
-                >
+                    )
 
-                    <td>
-                        ₹{payment.amount}
-                    </td>
+                    :
 
-                    <td>
-                        {payment.status}
-                    </td>
+                    (
 
-                    <td>
+                        <div className="table-responsive">
 
-                        {
-                            new Date(
-                                payment.created_at
-                            )
-                            .toLocaleDateString()
-                        }
+                            <table className="table table-hover align-middle">
 
-                    </td>
+                                <thead>
 
-                </tr>
-            ))
-        }
+                                    <tr>
 
-    </tbody>
+                                        <th>
 
-</table>
+                                            Amount
 
-</div>
+                                        </th>
+
+                                        <th>
+
+                                            Status
+
+                                        </th>
+
+                                        <th>
+
+                                            Date
+
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    {
+
+                                        payments.map(
+
+                                            payment => (
+
+                                                <tr
+                                                    key={payment.id}
+                                                >
+
+                                                    <td>
+
+                                                        ₹{payment.amount}
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <span
+
+                                                            className={`badge ${
+
+                                                                payment.status === "SUCCESS"
+
+                                                                    ?
+
+                                                                    "bg-success"
+
+                                                                    :
+
+                                                                    payment.status === "PENDING"
+
+                                                                        ?
+
+                                                                        "bg-warning text-dark"
+
+                                                                        :
+
+                                                                        "bg-danger"
+
+                                                            }`}
+
+                                                        >
+
+                                                            {payment.status}
+
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        {
+
+                                                            new Date(
+
+                                                                payment.created_at
+
+                                                            ).toLocaleDateString()
+
+                                                        }
+
+                                                    </td>
+
+                                                </tr>
+
+                                            )
+
+                                        )
+
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    )
+
+            }
+
+        </div>
+
     );
+
 }

@@ -22,9 +22,10 @@ app.use(
     helmet()
 );
 
-app.use(
-    cors()
-);
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 app.use(
     express.json()
@@ -56,7 +57,7 @@ app.get(
 
 app.use(
 
-    '/api/analytics',
+    '/analytics',
 
     analyticsRoutes
 );

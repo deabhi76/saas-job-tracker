@@ -232,6 +232,8 @@ const refreshAccessToken =
 
         const refreshToken =req.cookies.refreshToken;
 
+        console.log("REFRESH TOKEN USED");
+
         const {
 
             accessToken,
@@ -293,7 +295,50 @@ const googleCallback =
 
     async (req, res) => {
 
+        console.log("GOOGLE CALLBACK HIT");
+
         const user = req.user;
+
+        const frontendUrl =
+    process.env.FRONTEND_URL;
+
+    console.log("USER:", user);
+
+if (user.oauthSignup) {
+
+    console.log("ENTERED COMPANY SIGNUP");
+
+    const {
+        generateCompanySignupToken
+    } = require("../utils/jwt");
+
+    console.log("GENERATING TOKEN");
+
+    const signupToken =
+        generateCompanySignupToken({
+
+            email: user.email,
+
+            name: user.name,
+
+            googleId: user.googleId,
+
+            role: user.role
+
+        });
+
+    console.log("TOKEN GENERATED");
+
+    console.log(
+        `${frontendUrl}/company-google-signup?token=${signupToken}`
+    );
+
+    return res.redirect(
+        `${frontendUrl}/company-google-signup?token=${signupToken}`
+    );
+}
+
+console.log("NORMAL LOGIN FLOW");
 
         const {
             accessToken,
@@ -307,27 +352,34 @@ setRefreshCookie(
     refreshToken
 );
 
-        res.json({
-            accessToken,
-            user: {
+    //     res.json({
+    //         accessToken,
+    //         user: {
 
-        userId:
-            user.userId,
+    //     userId:
+    //         user.userId,
 
-        name:user.name,
+    //     name:user.name,
 
-        email:
-            user.email,
+    //     email:
+    //         user.email,
 
-        role:
-            user.role,
+    //     role:
+    //         user.role,
 
-        companyId:
-            user.companyId,
+    //     companyId:
+    //         user.companyId,
 
-        companyName:user.companyName
-    }
-        });
+    //     companyName:user.companyName
+    // }
+    //     });
+
+    // const frontendUrl =
+    // process.env.FRONTEND_URL;
+
+res.redirect(
+    `${frontendUrl}/oauth-success?accessToken=${accessToken}`
+);
     }
 );
 
@@ -356,6 +408,46 @@ const getRecruiters =
     }
 );
 
+const completeGoogleCompanySignup =
+asyncHandler(
+
+    async (req, res) => {
+
+        const result =
+            await authService
+                .completeGoogleCompanySignup({
+
+                    token:
+                        req.body.token,
+
+                    companyName:
+                        req.body.companyName
+
+                });
+
+        const {
+            accessToken,
+            refreshToken,
+            user
+        } = result;
+
+        setRefreshCookie(
+            res,
+            refreshToken
+        );
+
+        res.json({
+
+            accessToken,
+
+            user
+
+        });
+
+    }
+
+);
+
 module.exports = {
     signupCandidate,
     signupCompany,
@@ -365,5 +457,6 @@ module.exports = {
     getMe,
     logout,
     googleCallback,
-    getRecruiters
+    getRecruiters,
+    completeGoogleCompanySignup
 };

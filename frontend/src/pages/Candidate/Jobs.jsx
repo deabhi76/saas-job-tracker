@@ -1,112 +1,165 @@
+
 import {
-  useState,
-  useEffect
-}
-from "react";
+    useState,
+    useEffect
+} from "react";
 
-import { Link }
-from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import api
-from "../../api/axios";
+import api from "../../api/axios";
+
+import {
+    useAuth
+} from "../../context/AuthContext";
 
 export default function CandidateJobs() {
 
-  const [
-    jobs,
-    setJobs
-  ] = useState([]);
+    const [jobs, setJobs] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
+        loadJobs();
+    }, []);
 
-    loadJobs();
+    const loadJobs = async () => {
 
-  }, []);
+        try {
 
-  const loadJobs =
-  async () => {
+            const response = await api.get("/jobs");
 
-    try {
+            setJobs(response.data.data);
 
-      const response =
-        await api.get(
-          "/jobs"
-        );
+        } catch (err) {
 
-      setJobs(
-        response.data.data
-      );
+            console.error(err);
 
-    } catch (err) {
+        }
 
-      console.error(err);
+    };
+
+    const { user } = useAuth();
+
+const getJobDetailsPath = (jobId) => {
+
+    switch (user?.role) {
+
+        case "CANDIDATE":
+            return `/candidate/jobs/${jobId}`;
+
+        case "RECRUITER":
+            return `/recruiter/browse-jobs/${jobId}`;
+
+        default:
+            return `/jobs/${jobId}`;
     }
-  };
 
-  return (
+};
 
-    <div>
+    return (
 
-      <h2>
-        Available Jobs
-      </h2>
+        <div className="container py-4">
 
-      <div
-        className="row"
-      >
+            <h2 className="fw-bold mb-1">
+                Available Jobs
+            </h2>
 
-        {jobs.map(
-          (job) => (
+            <p className="text-muted mb-4">
+                Browse the latest opportunities from companies.
+            </p>
 
-            <div
-              key={job.id}
-              className="col-md-6 mb-3"
-            >
+            <div className="row justify-content-center">
 
-              <div
-                className="card"
-              >
+                {
 
-                <div
-                  className="card-body"
-                >
+                    jobs.length === 0
 
-                  <h5>
-                    {job.title}
-                  </h5>
+                        ?
 
-                  <h5>
-                    {job.company_name}
-                  </h5>
+                        (
 
-                  <p>
-                    {job.location}
-                  </p>
+                            <div className="col-lg-10">
 
-                  <p>
-                    {
-                      job.employment_type
-                    }
-                  </p>
+                                <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                  <Link
-                    to={`/jobs/${job.id}`}
-                    className="btn btn-primary"
-                  >
-                    View
-                  </Link>
+                                    <h5 className="fw-semibold">
+                                        No jobs available
+                                    </h5>
 
-                </div>
+                                    <p className="text-muted mb-0">
+                                        Please check back later.
+                                    </p>
 
-              </div>
+                                </div>
+
+                            </div>
+
+                        )
+
+                        :
+
+                        jobs.map((job) => (
+
+                            <div
+                                key={job.id}
+                                className="col-lg-10 mb-4"
+                            >
+
+                                <div className="card border-0 shadow-sm rounded-4">
+
+                                    <div className="card-body p-4 d-flex justify-content-between align-items-center">
+
+                                        <div>
+
+                                            <div className="d-flex align-items-center mb-3">
+
+                                                <h4 className="fw-bold mb-0 me-3">
+                                                    {job.title}
+                                                </h4>
+
+                                                <span className="text-muted fs-5">
+                                                    {job.company_name}
+                                                </span>
+
+                                            </div>
+
+                                            <div>
+
+                                                <span className="badge bg-secondary me-2">
+                                                    {job.location}
+                                                </span>
+
+                                                <span className="badge bg-primary">
+                                                    {job.employment_type}
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div>
+
+                                            <Link
+                                                to={getJobDetailsPath(job.id)}
+                                                className="btn btn-outline-primary"
+                                            >
+                                                View Details
+                                            </Link>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        ))
+
+                }
 
             </div>
 
-          )
-        )}
+        </div>
 
-      </div>
+    );
 
-    </div>
-  );
 }

@@ -42,18 +42,18 @@ app.use(
     jobRoutes
 );
 
-app.use(
+// app.use(
 
-    '/uploads',
+//     '/uploads',
 
-    express.static(
+//     express.static(
 
-        path.join(
-            __dirname,
-            '../src/uploads'
-        )
-    )
-);
+//         path.join(
+//             __dirname,
+//             '../src/uploads'
+//         )
+//     )
+// );
 
 app.get('/health', (req, res) => {
 

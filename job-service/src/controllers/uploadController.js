@@ -20,14 +20,14 @@ async function uploadResume(
                 400
             );
         }
+        console.log(req.file);
 
         return res.json({
 
             success: true,
 
             resumeUrl:
-
-                `uploads/resumes/${req.file.filename}`
+                    req.file.path
         });
 
     } catch (err) {

@@ -1,11 +1,17 @@
+
 import {
     useEffect,
     useState
 } from "react";
 
 import {
-    useParams
+    useParams,
+    useNavigate
 } from "react-router-dom";
+
+import {
+    useAuth
+} from "../../context/AuthContext";
 
 import {
     getApplicationsForJob,
@@ -14,12 +20,23 @@ import {
 
 export default function JobApplications() {
 
-    const { id } =
-        useParams();
+    const { id } = useParams();
+
+    const navigate = useNavigate();
+
+const { user } = useAuth();
+
+const backPath =
+    user?.role === "COMPANY_ADMIN"
+        ? "/company-admin/jobs"
+        : "/recruiter/jobs";
 
     const [
+
         applications,
+
         setApplications
+
     ] = useState([]);
 
     useEffect(() => {
@@ -29,190 +46,268 @@ export default function JobApplications() {
     }, []);
 
     const loadApplications =
-async () => {
+    async () => {
 
-    try {
+        try {
 
-        const response =
-            await getApplicationsForJob(
-                id
+            const response =
+                await getApplicationsForJob(id);
+
+            setApplications(
+                response.data.data
             );
 
-        setApplications(
-            response.data.data
-        );
+        } catch (err) {
 
-    } catch (err) {
+            console.error(err);
 
-        console.error(err);
+            alert(
+                "Failed to load applications"
+            );
 
-        alert(
-            "Failed to load applications"
-        );
-    }
-};
+        }
+
+    };
 
     const handleStatusChange =
-async (
-    applicationId,
-    status
-) => {
+    async (
+        applicationId,
+        status
+    ) => {
 
-    try {
+        try {
 
-        await updateApplicationStatus(
+            await updateApplicationStatus(
+                applicationId,
+                status
+            );
 
-            applicationId,
+            loadApplications();
 
-            status
+        } catch (err) {
 
-        );
+            console.error(err);
 
-        loadApplications();
+            alert(
+                "Update failed"
+            );
 
-    } catch (err) {
+        }
 
-        console.error(err);
+    };
 
-        alert(
-            "Update failed"
-        );
-    }
-};
+    const getStatusBadge = (status) => {
 
-return (
+        switch (status) {
 
-<div className="container mt-4">
+            case "ACCEPTED":
+                return "bg-success";
 
-    <h2>
-        Applications
-    </h2>
+            case "REJECTED":
+                return "bg-danger";
 
-    <table className="table">
+            case "REVIEWED":
+                return "bg-info";
 
-        <thead>
+            default:
+                return "bg-warning text-dark";
 
-            <tr>
+        }
 
-                <th>
-                    Candidate
-                </th>
+    };
 
-                <th>
-                    Email
-                </th>
+    return (
 
-                <th>
-                    Status
-                </th>
+        <div className="container py-4">
 
-                <th>
-                    Resume
-                </th>
+            <button
+                className="btn btn-outline-secondary mb-4"
+                onClick={() => navigate(backPath)}
+            >
+                ← Back to My Jobs
+            </button>
 
-                <th>
-                    Update
-                </th>
+            <h2 className="fw-bold mb-1">
+                Job Applications
+            </h2>
 
-            </tr>
+            <p className="text-muted mb-4">
+                Review and manage applications submitted for this job.
+            </p>
 
-        </thead>
+            {
 
-        <tbody>
+                applications.length === 0
 
-            {applications.map(
-                (application) => (
+                ?
 
-                    <tr
-                        key={
-                            application.id
-                        }
-                    >
+                (
 
-                        <td>
-                            {
-                                application.candidate_name
-                            }
-                        </td>
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                        <td>
-                            {
-                                application.candidate_email
-                            }
-                        </td>
+                        <h5 className="fw-semibold">
+                            No applications yet
+                        </h5>
 
-                        <td>
-                            {
-                                application.status
-                            }
-                        </td>
+                        <p className="text-muted mb-0">
+                            Candidate applications will appear here.
+                        </p>
 
-                        <td>
-
-                            <a
-                                href={
-                                    `http://localhost:3002/${application.resume_url}`
-                                }
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                View Resume
-                            </a>
-
-                        </td>
-
-                        <td>
-
-                            <select
-
-                                value={
-                                    application.status
-                                }
-
-                                onChange={
-                                    (e) =>
-                                        handleStatusChange(
-
-                                            application.id,
-
-                                            e.target.value
-
-                                        )
-                                }
-
-                            >
-
-                                <option value="PENDING">
-                                    PENDING
-                                </option>
-
-                                <option value="REVIEWED">
-                                    REVIEWED
-                                </option>
-
-                                <option value="ACCEPTED">
-                                    ACCEPTED
-                                </option>
-
-                                <option value="REJECTED">
-                                    REJECTED
-                                </option>
-
-                            </select>
-
-                        </td>
-
-                    </tr>
+                    </div>
 
                 )
-            )}
 
-        </tbody>
+                :
 
-    </table>
+                (
 
-</div>
+                    <div className="card border-0 shadow-sm rounded-4">
 
-);
+                        <div className="table-responsive">
+
+                            <table className="table align-middle mb-0">
+
+                                <thead className="table-light">
+
+                                    <tr>
+
+                                        <th className="ps-4">
+                                            Candidate
+                                        </th>
+
+                                        <th>
+                                            Email
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th className="text-center">
+                                            Resume
+                                        </th>
+
+                                        <th className="text-center">
+                                            Update Status
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    {
+
+                                        applications.map(application => (
+
+                                            <tr
+                                                key={application.id}
+                                            >
+
+                                                <td className="ps-4 fw-semibold">
+
+                                                    {application.candidate_name}
+
+                                                </td>
+
+                                                <td>
+
+                                                    {application.candidate_email}
+
+                                                </td>
+
+                                                <td>
+
+                                                    <span
+                                                        className={`badge ${getStatusBadge(application.status)}`}
+                                                    >
+
+                                                        {application.status}
+
+                                                    </span>
+
+                                                </td>
+
+                                                <td className="text-center">
+
+                                                    <a
+                                                        href={application.resume_url}                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="btn btn-sm btn-outline-primary"
+                                                    >
+                                                        View
+                                                    </a>
+
+                                                </td>
+
+                                                <td className="text-center">
+
+                                                    <select
+
+                                                        className="form-select form-select-sm"
+
+                                                        style={{
+                                                            width: "170px",
+                                                            margin: "0 auto"
+                                                        }}
+
+                                                        value={application.status}
+
+                                                        onChange={(e) =>
+
+                                                            handleStatusChange(
+
+                                                                application.id,
+
+                                                                e.target.value
+
+                                                            )
+
+                                                        }
+
+                                                    >
+
+                                                        <option value="PENDING">
+                                                            Pending
+                                                        </option>
+
+                                                        <option value="REVIEWED">
+                                                            Reviewed
+                                                        </option>
+
+                                                        <option value="ACCEPTED">
+                                                            Accepted
+                                                        </option>
+
+                                                        <option value="REJECTED">
+                                                            Rejected
+                                                        </option>
+
+                                                    </select>
+
+                                                </td>
+
+                                            </tr>
+
+                                        ))
+
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                )
+
+            }
+
+        </div>
+
+    );
 
 }

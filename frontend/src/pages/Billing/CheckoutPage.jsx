@@ -21,8 +21,10 @@ export default function CheckoutPage() {
     const navigate =
         useNavigate();
 
-    const [plan, setPlan] =
-        useState(null);
+    const [
+        plan,
+        setPlan
+    ] = useState(null);
 
     useEffect(() => {
 
@@ -33,130 +35,247 @@ export default function CheckoutPage() {
     const loadPlan =
     async () => {
 
-        const response =
-            await getPlans();
+        try {
 
-        const selectedPlan =
-            response.data.data.find(
+            const response =
+                await getPlans();
 
-                p =>
-                p.id === planId
+            const selectedPlan =
+                response.data.data.find(
 
+                    p =>
+
+                    p.id === planId
+
+                );
+
+            setPlan(
+                selectedPlan
             );
 
-        setPlan(
-            selectedPlan
-        );
-    };
+        } catch (err) {
 
-    const handlePayment =
-async () => {
+            console.error(err);
 
-    try {
-
-        await purchaseSubscription(
-            plan.id
-        );
-
-        navigate(
-            "/billing/success"
-        );
-
-    } catch (err) {
-
-        console.error(err);
-
-        alert(
-            "Payment failed"
-        );
-    }
-};
-
-    if (!plan) {
-
-        return <p>Loading...</p>;
-    }
-
-    return (
-        <div className="container mt-4">
-
-    <h2>
-        Checkout
-    </h2>
-
-    <div className="card p-4">
-
-        <h3>
-            {plan.name}
-        </h3>
-
-        <p>
-
-            ₹{plan.monthly_price}
-            / month
-
-        </p>
-
-        <ul>
-
-        {
-
-            Object.entries(
-                plan.features
-            ).map(
-
-                ([key,value]) => (
-
-                    <li key={key}>
-
-                        {key}
-                        :
-                        {String(value)}
-
-                    </li>
-
-                )
-
-            )
+            alert(
+                "Failed to load plan."
+            );
 
         }
 
-        </ul>
+    };
 
-    </div>
+    const handlePayment =
+    async () => {
 
-    <button
+        try {
 
-    className=
-        "btn btn-success me-2"
+            await purchaseSubscription(
+                plan.id
+            );
 
-    onClick={
-        handlePayment
+            navigate(
+                "/billing/success"
+            );
+
+        } catch (err) {
+
+            console.error(err);
+
+            alert(
+                "Payment failed"
+            );
+
+        }
+
+    };
+
+    if (!plan) {
+
+        return (
+
+            <div className="container py-5 text-center">
+
+                <div className="spinner-border text-primary" />
+
+            </div>
+
+        );
+
     }
 
->
+    return (
 
-    Pay ₹{plan.monthly_price}
+        <div className="container py-4">
 
-</button>
+            <button
+                className="btn btn-outline-secondary mb-4"
+                onClick={() =>
+                    navigate("/billing")
+                }
+            >
+                ← Back to Billing
+            </button>
 
-<button
+            <h2 className="fw-bold mb-1">
 
-    className=
-        "btn btn-secondary"
+                Checkout
 
-    onClick={() =>
-        navigate(
-            "/billing"
-        )
-    }
+            </h2>
 
->
+            <p className="text-muted mb-4">
 
-    Cancel
+                Review your subscription before confirming payment.
 
-</button>
+            </p>
 
-</div>
+            <div className="row justify-content-center">
+
+                <div className="col-lg-7">
+
+                    <div className="card border-0 shadow-sm rounded-4">
+
+                        <div className="card-body p-5">
+
+                            <h3 className="fw-bold">
+
+                                {plan.name}
+
+                            </h3>
+
+                            <h4 className="text-primary mb-4">
+
+                                ₹{plan.monthly_price}
+
+                                <small className="text-muted fs-6">
+
+                                    /month
+
+                                </small>
+
+                            </h4>
+
+                            <ul className="list-unstyled mb-4">
+
+                                {
+
+                                    Object.entries(
+                                        plan.features
+                                    ).map(
+
+                                        ([key, value]) => (
+
+                                            <li
+                                                key={key}
+                                                className="mb-2"
+                                            >
+
+                                                {
+
+                                                    typeof value === "boolean"
+
+                                                        ?
+
+                                                        (
+
+                                                            value
+
+                                                                ? "✅"
+
+                                                                : "❌"
+
+                                                        )
+
+                                                        :
+
+                                                        "✅"
+
+                                                }
+
+                                                {" "}
+
+                                                {
+
+                                                    key
+
+                                                        .replaceAll("_", " ")
+
+                                                        .replace(
+
+                                                            /\b\w/g,
+
+                                                            c => c.toUpperCase()
+
+                                                        )
+
+                                                }
+
+                                                {
+
+                                                    typeof value !== "boolean" && (
+
+                                                        <>
+
+                                                            {": "}
+
+                                                            {value}
+
+                                                        </>
+
+                                                    )
+
+                                                }
+
+                                            </li>
+
+                                        )
+
+                                    )
+
+                                }
+
+                            </ul>
+
+                            <div className="d-flex gap-3">
+
+                                <button
+
+                                    className="btn btn-success flex-fill"
+
+                                    onClick={handlePayment}
+
+                                >
+
+                                    Pay ₹{plan.monthly_price}
+
+                                </button>
+
+                                <button
+
+                                    className="btn btn-outline-secondary flex-fill"
+
+                                    onClick={() =>
+                                        navigate("/billing")
+                                    }
+
+                                >
+
+                                    Cancel
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     );
+
 }

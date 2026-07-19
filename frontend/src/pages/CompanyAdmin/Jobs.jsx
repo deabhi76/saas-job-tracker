@@ -1,9 +1,9 @@
-import { Link }
-from "react-router-dom";
+
+import { Link } from "react-router-dom";
 
 import {
-  useEffect,
-  useState
+    useEffect,
+    useState
 } from "react";
 
 import {
@@ -11,182 +11,249 @@ import {
 } from "react-router-dom";
 
 import {
-  getMyJobs,
-  deleteJob
+    useAuth
+} from "../../context/AuthContext";
+
+import {
+    getMyJobs,
+    deleteJob
 } from "../../api/jobApi";
 
 export default function Jobs() {
 
-  const navigate =
-    useNavigate();
+    const navigate = useNavigate();
 
-  const [
-    jobs,
-    setJobs
-  ] = useState([]);
+    const { user } = useAuth();
 
-  const loadJobs =
-  async () => {
+    const [
 
-    try {
+        jobs,
 
-      const response =
-        await getMyJobs();
+        setJobs
 
-      setJobs(
-        response.data.data
-      );
+    ] = useState([]);
 
-    } catch (err) {
+    useEffect(() => {
 
-      console.error(err);
+        loadJobs();
 
-      alert(
-        "Failed to load jobs"
-      );
-    }
-  };
+    }, []);
 
-  useEffect(() => {
+    const loadJobs = async () => {
 
-    loadJobs();
+        try {
 
-  }, []);
+            const response =
+                await getMyJobs();
 
-  const handleDelete =
-  async (jobId) => {
+            setJobs(
+                response.data.data
+            );
 
-    const confirmed =
-      window.confirm(
-        "Delete this job?"
-      );
+        } catch (err) {
 
-    if (!confirmed)
-      return;
+            console.error(err);
 
-    try {
+            alert(
+                "Failed to load jobs"
+            );
 
-      await deleteJob(
-        jobId
-      );
+        }
 
-      loadJobs();
+    };
 
-    } catch (err) {
+    const basePath =
 
-      console.error(err);
+        user?.role === "COMPANY_ADMIN"
 
-      alert(
-        "Delete failed"
-      );
-    }
-  };
+            ? "/company-admin"
 
-  return (
+            : "/recruiter";
 
-    <div>
+    const handleDelete =
+    async (jobId) => {
 
-      <h2>
-        My Jobs
-      </h2>
+        const confirmed =
+            window.confirm(
+                "Delete this job?"
+            );
 
-      <table
-        className="table"
-      >
+        if (!confirmed)
+            return;
 
-        <thead>
+        try {
 
-          <tr>
+            await deleteJob(jobId);
 
-            <th>
-              Title
-            </th>
+            loadJobs();
 
-            <th>
-              Location
-            </th>
+        } catch (err) {
 
-            <th>
-              Type
-            </th>
+            console.error(err);
 
-            <th>
-              Actions
-            </th>
+            alert(
+                "Delete failed"
+            );
 
-          </tr>
+        }
 
-        </thead>
+    };
 
-        <tbody>
+    return (
 
-          {jobs.map(
-            (job) => (
+        <div className="container py-4">
 
-              <tr
-                key={job.id}
-              >
+            <h2 className="fw-bold mb-1">
+                My Jobs
+            </h2>
 
-                <td>
-                  {job.title}
-                </td>
+            <p className="text-muted mb-4">
+                Manage all jobs posted by your company.
+            </p>
 
-                 <td>
-                  {job.company_name}
-                </td>
+            {
 
-                <td>
-                  {job.location}
-                </td>
+                jobs.length === 0
 
-                <td>
-                  {
-                    job.employment_type
-                  }
-                </td>
+                ?
 
-                <td>
+                (
 
-                  <Link
-                    to={`/company-admin/jobs/${job.id}/edit`}
-                    className="btn btn-warning btn-sm me-2"
-                  >
-                    Edit
-                  </Link>
+                    <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
 
-                  <button
-                    className="btn btn-info btn-sm me-2"
-                    onClick={() =>
-                        navigate(
-                            `/company/jobs/${job.id}/applications`
-                        )
-                    }
-                >
-                    Applications
-                </button>
+                        <h5 className="fw-semibold">
+                            No jobs posted yet
+                        </h5>
 
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() =>
-                      handleDelete(
-                        job.id
-                      )
-                    }
-                  >
-                    Delete
-                  </button>
+                        <p className="text-muted mb-0">
+                            Create your first job to start hiring.
+                        </p>
 
-                </td>
+                    </div>
 
-              </tr>
+                )
 
-            )
-          )}
+                :
 
-        </tbody>
+                (
 
-      </table>
+                    <div className="card border-0 shadow-sm rounded-4">
 
-    </div>
-  );
+                        <div className="table-responsive">
+
+                            <table className="table align-middle mb-0">
+
+                                <thead className="table-light">
+
+                                    <tr>
+
+                                        <th className="ps-4">
+                                            Title
+                                        </th>
+
+                                        <th>
+                                            Company
+                                        </th>
+
+                                        <th>
+                                            Location
+                                        </th>
+
+                                        <th>
+                                            Type
+                                        </th>
+
+                                        <th className="text-center">
+                                            Actions
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    {
+
+                                        jobs.map(job => (
+
+                                            <tr
+                                                key={job.id}
+                                            >
+
+                                                <td className="ps-4 fw-semibold">
+                                                    {job.title}
+                                                </td>
+
+                                                <td>
+                                                    {job.company_name}
+                                                </td>
+
+                                                <td>
+                                                    {job.location}
+                                                </td>
+
+                                                <td>
+
+                                                    <span className="badge bg-primary">
+
+                                                        {job.employment_type}
+
+                                                    </span>
+
+                                                </td>
+
+                                                <td className="text-center">
+
+                                                    <Link
+                                                        to={`${basePath}/jobs/${job.id}/edit`}
+                                                        className="btn btn-warning btn-sm me-2"
+                                                    >
+                                                        Edit
+                                                    </Link>
+
+                                                    <button
+                                                        className="btn btn-info btn-sm me-2"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `${basePath}/jobs/${job.id}/applications`
+                                                            )
+                                                        }
+                                                    >
+                                                        Applications
+                                                    </button>
+
+                                                    <button
+                                                        className="btn btn-danger btn-sm"
+                                                        onClick={() =>
+                                                            handleDelete(job.id)
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        ))
+
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                )
+
+            }
+
+        </div>
+
+    );
+
 }

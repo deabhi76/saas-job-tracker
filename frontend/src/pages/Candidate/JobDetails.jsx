@@ -1,28 +1,25 @@
+
+
 import {
     useState,
     useEffect
-}
-from "react";
+} from "react";
 
 import {
     useParams,
     useNavigate
-}
-from "react-router-dom";
+} from "react-router-dom";
 
 import {
     getJobById,
     applyToJob,
     uploadResume,
     hasApplied
-}
-from "../../api/jobApi";
+} from "../../api/jobApi";
 
 import {
     useAuth
 } from "../../context/AuthContext";
-
-
 
 export default function CandidateJobDetails() {
 
@@ -31,45 +28,38 @@ export default function CandidateJobDetails() {
         user
     } = useAuth();
 
-    const navigate =
-        useNavigate();
+    const navigate = useNavigate();
 
-    const { id } =
-        useParams();
+    const { id } = useParams();
 
-   
     const [
         job,
         setJob
     ] = useState(null);
 
     const [
-    resumeFile,
-    setResumeFile
-] = useState(null);
+        resumeFile,
+        setResumeFile
+    ] = useState(null);
 
-const [
-
-applied,
-
-setApplied
-
-] = useState(false);
+    const [
+        applied,
+        setApplied
+    ] = useState(false);
 
     useEffect(() => {
 
-    loadJob();
+        loadJob();
 
-    if (isAuthenticated) {
+        if (isAuthenticated) {
 
-        checkApplied();
+            checkApplied();
 
-    }
+        }
 
-}, []);
+    }, []);
 
-    const loadJob =
-    async () => {
+    const loadJob = async () => {
 
         try {
 
@@ -84,289 +74,406 @@ setApplied
 
             console.error(err);
 
-            alert(
-                "Failed to load job"
-            );
+            alert("Failed to load job");
+
         }
+
     };
 
-    const checkApplied =
-async () => {
+    const checkApplied = async () => {
 
-    try {
+        try {
 
-        const response =
-            await hasApplied(id);
+            const response =
+                await hasApplied(id);
 
-            console.log("HAS APPLIED RESPONSE:", response.data);
+            setApplied(
+                response.data.data.applied
+            );
 
-        setApplied(
+        } catch (err) {
 
-            response
-            .data
-            .data
-            .applied
+            console.error(err);
 
-        );
+        }
 
-    } catch (err) {
+    };
 
-        console.error(err);
+    const handleApply = async () => {
 
-    }
+        if (!isAuthenticated) {
 
-};
+            navigate("/login");
 
-    const handleApply =
-async () => {
+            return;
 
-    if (!isAuthenticated) {
+        }
 
-    navigate("/login");
+        if (!resumeFile) {
 
-    return;
-}
+            alert("Please upload a resume");
 
-    if (!resumeFile) {
+            return;
 
-        alert(
-            "Please upload a resume"
-        );
+        }
 
-        return;
-    }
+        try {
 
-    try {
+            const formData =
+                new FormData();
 
-        const formData =
-            new FormData();
+            formData.append(
+                "resume",
+                resumeFile
+            );
 
-        formData.append(
-            "resume",
-            resumeFile
-        );
+            const uploadResponse =
+                await uploadResume(formData);
 
-        const uploadResponse =
-    await uploadResume(
-        formData
-    );
+            const resumeUrl =
+                uploadResponse.data.resumeUrl;
 
-console.log(
-    "UPLOAD RESPONSE:",
-    uploadResponse.data
-);
+            await applyToJob(
+                id,
+                {
+                    resumeUrl
+                }
+            );
 
-const resumeUrl =
-    uploadResponse
-        .data
-        .resumeUrl;
+            alert(
+                "Application submitted"
+            );
 
-console.log(
-    "RESUME URL:",
-    resumeUrl
-);
+            setApplied(true);
 
-        console.log(
-    "APPLY PAYLOAD:",
-    {
-        resumeUrl
-    }
-);
+            if (
+                user.role === "CANDIDATE"
+            ) {
 
-await applyToJob(
-    id,
-    {
-        resumeUrl
-    }
-);
+                navigate(
+                    "/candidate/my-applications"
+                );
 
-        alert(
-            "Application submitted"
-        );
-        setApplied(true);
-        navigate(
-            "/candidate/my-applications"
-        );
+            } else if (
+                user.role === "RECRUITER"
+            ) {
 
-    } catch (err) {
+                navigate(
+                    "/recruiter/my-applications"
+                );
 
-        console.error(err);
+            }
 
-        console.log(
-        "BACKEND ERROR:",
-        err.response?.data
-    );
+        } catch (err) {
 
-        alert(
-            "Application failed"
-        );
-    }
-};
+            console.error(err);
+
+            alert(
+                "Application failed"
+            );
+
+        }
+
+    };
 
     if (!job) {
 
         return (
-            <p>
-                Loading...
-            </p>
+
+            <div className="container py-5 text-center">
+
+                <div className="spinner-border text-primary" />
+
+            </div>
+
         );
+
     }
 
-//     const handleApply =
-// async () => {
-
-//     try {
-
-//         await applyToJob(
-//             id
-//         );
-
-//         alert(
-//             "Application submitted"
-//         );
-
-//     } catch (err) {
-
-//         console.error(err);
-
-//         alert(
-//             err.response?.data?.message
-//             || "Failed to apply"
-//         );
-//     }
-// };
-
     const isOwnCompanyJob =
-    user?.role === "RECRUITER" &&
-    Number(user.companyId) === Number(job.company_id);
 
-console.log("Applied:", applied);
+        user?.role === "RECRUITER" &&
+
+        Number(user.companyId) === Number(job.company_id);
+
+
+
+        const backPath =
+    user?.role === "CANDIDATE"
+        ? "/candidate/jobs"
+        : user?.role === "RECRUITER"
+        ? "/recruiter/browse-jobs"
+        : "/jobs";
 
     return (
 
-        <div
-            className="container mt-4"
-        >
+        <div className="container py-4">
 
-            <h2>
-                {job.title}
-            </h2>
+            <div className="row justify-content-center">
 
-            <h2>
-                {job.company_name}
-            </h2>
+                <div className="col-lg-8">
 
-            <p>
+                    {/* Back */}
 
-                <strong>
-                    Description:
-                </strong>
+                    <button
 
-                {" "}
+                        className="btn btn-link text-decoration-none ps-0 mb-4"
 
-                {job.description}
+                        onClick={() => navigate(backPath)}
 
-            </p>
+                    >
 
-            <p>
+                        ← Back to Available Jobs
 
-                <strong>
-                    Location:
-                </strong>
+                    </button>
 
-                {" "}
+                    {/* Header */}
 
-                {job.location}
+                    <div className="mb-4">
 
-            </p>
+                        <div className="d-flex align-items-center mb-3">
 
-            <p>
+                            <h2 className="fw-bold mb-0">
 
-                <strong>
-                    Salary:
-                </strong>
+                                {job.title}
 
-                {" "}
+                            </h2>
 
-                {job.salary_min}
+                            <span className="mx-2 text-muted">
 
-                {" - "}
+                                •
 
-                {job.salary_max}
+                            </span>
 
-            </p>
+                            <h4 className="text-muted mb-0">
 
-            <p>
+                                {job.company_name}
 
-                <strong>
-                    Employment Type:
-                </strong>
+                            </h4>
 
-                {" "}
+                        </div>
 
-                {
-                    job.employment_type
-                }
+                        <span className="badge bg-secondary me-2">
 
-            </p>
+                            {job.location}
 
-            {
-    isAuthenticated ? (
-        <>
-            <input
-                type="file"
-                accept=".pdf"
-                className="form-control mb-3"
-                onChange={(e) =>
-                    setResumeFile(
-                        e.target.files[0]
-                    )
-                }
-            />
+                        </span>
 
-  {
-isOwnCompanyJob ? (
+                        <span className="badge bg-primary">
 
-<button
-    className="btn btn-secondary"
-    disabled
->
-    Posted by Your Company
-</button>
+                            {job.employment_type}
 
-) : applied ? (
+                        </span>
 
-<button
-    className="btn btn-secondary"
-    disabled
->
-    Already Applied
-</button>
+                    </div>
 
-) : (
+                    {/* Description */}
 
-<button
-    className="btn btn-success"
-    onClick={handleApply}
->
-    Apply
-</button>
+                    <div className="card border-0 shadow-sm rounded-4 mb-4">
 
-)
-}
-        </>
-    ) : (
-        <button
-            className="btn btn-primary"
-            onClick={() =>
-                navigate("/login")
-            }
-        >
-            Login to Apply
-        </button>
-    )
-}
+                        <div className="card-body p-4">
+
+                            <h5 className="fw-bold mb-3">
+
+                                Job Description
+
+                            </h5>
+
+                            <p className="mb-0">
+
+                                {job.description}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    {/* Details */}
+
+                    <div className="card border-0 shadow-sm rounded-4 mb-4">
+
+                        <div className="card-body p-4">
+
+                            <h5 className="fw-bold mb-3">
+
+                                Job Details
+
+                            </h5>
+
+                            <div className="row">
+
+                                <div className="col-md-6">
+
+                                    <p>
+
+                                        <strong>
+
+                                            Salary
+
+                                        </strong>
+
+                                    </p>
+
+                                    <p>
+
+                                        ₹{job.salary_min}
+
+                                        {" - "}
+
+                                        ₹{job.salary_max}
+
+                                    </p>
+
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <p>
+
+                                        <strong>
+
+                                            Employment Type
+
+                                        </strong>
+
+                                    </p>
+
+                                    <p>
+
+                                        {job.employment_type}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {/* Apply */}
+
+                    <div className="card border-0 shadow-sm rounded-4">
+
+                        <div className="card-body p-4">
+
+                            <h5 className="fw-bold mb-3">
+
+                                Apply for this Job
+
+                            </h5>
+
+                            {
+
+                                isAuthenticated
+
+                                    ?
+
+                                    <>
+
+                                        <input
+
+                                            type="file"
+
+                                            accept=".pdf"
+
+                                            className="form-control"
+
+                                            onChange={(e) =>
+
+                                                setResumeFile(
+
+                                                    e.target.files[0]
+
+                                                )
+
+                                            }
+
+                                        />
+
+                                        {
+
+                                            isOwnCompanyJob
+
+                                                ?
+
+                                                <div className="d-flex justify-content-center mt-3">
+
+    <button
+        className="btn btn-outline-secondary px-4"
+        disabled
+    >
+        Posted by Your Company
+    </button>
+
+</div>
+
+                                                :
+
+                                                applied
+
+                                                    ?
+
+                                                    <div className="d-flex justify-content-center mt-3">
+
+    <button
+        className="btn btn-secondary px-4"
+        disabled
+    >
+        Already Applied
+    </button>
+
+</div>
+
+                                                    :
+
+                                                    <div className="d-flex justify-content-center mt-3">
+
+    <button
+        className="btn btn-success px-4"
+        onClick={handleApply}
+    >
+        Apply Now
+    </button>
+
+</div>
+
+                                        }
+
+                                    </>
+
+                                    :
+
+                                    <button
+
+                                        className="btn btn-primary w-100"
+
+                                        onClick={() =>
+
+                                            navigate("/login")
+
+                                        }
+
+                                    >
+
+                                        Login to Apply
+
+                                    </button>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
+
     );
+
 }
