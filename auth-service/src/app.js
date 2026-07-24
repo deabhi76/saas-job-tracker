@@ -7,8 +7,6 @@ const authRoutes =require('./routes/authRoutes');
 const pool =require('./db/db');
 
 const cors = require('cors');
-console.log("REDIS_URL =", process.env.REDIS_URL);
-console.log("NODE_ENV =", process.env.NODE_ENV);
 const {
     connectRedis
 } = require('./config/redis');
