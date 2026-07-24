@@ -30,8 +30,7 @@ import axios from "axios";
 
 export const authApi = axios.create({
 
-    baseURL:
-        "http://localhost:5000/api",
+    baseURL: import.meta.env.VITE_API_URL,
 
     withCredentials: true
 
@@ -39,8 +38,7 @@ export const authApi = axios.create({
 
 const api = axios.create({
 
-    baseURL:
-        "http://localhost:5000/api",
+    baseURL: import.meta.env.VITE_API_URL,
 
     withCredentials: true
 

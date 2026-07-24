@@ -47,6 +47,8 @@ export default function CandidateJobDetails() {
         setApplied
     ] = useState(false);
 
+    const [applying, setApplying] = useState(false);
+
     useEffect(() => {
 
         loadJob();
@@ -117,6 +119,10 @@ export default function CandidateJobDetails() {
 
         }
 
+        if (applying) return;
+
+         setApplying(true);
+
         try {
 
             const formData =
@@ -171,6 +177,11 @@ export default function CandidateJobDetails() {
             alert(
                 "Application failed"
             );
+
+        }
+        finally {
+
+            setApplying(false);
 
         }
 
@@ -401,14 +412,14 @@ export default function CandidateJobDetails() {
 
                                                 <div className="d-flex justify-content-center mt-3">
 
-    <button
-        className="btn btn-outline-secondary px-4"
-        disabled
-    >
-        Posted by Your Company
-    </button>
+                                                    <button
+                                                        className="btn btn-outline-secondary px-4"
+                                                        disabled
+                                                    >
+                                                        Posted by Your Company
+                                                    </button>
 
-</div>
+                                                </div>
 
                                                 :
 
@@ -418,27 +429,28 @@ export default function CandidateJobDetails() {
 
                                                     <div className="d-flex justify-content-center mt-3">
 
-    <button
-        className="btn btn-secondary px-4"
-        disabled
-    >
-        Already Applied
-    </button>
+                                                        <button
+                                                            className="btn btn-secondary px-4"
+                                                            disabled
+                                                        >
+                                                            Already Applied
+                                                        </button>
 
-</div>
+                                                    </div>
 
                                                     :
 
                                                     <div className="d-flex justify-content-center mt-3">
 
-    <button
-        className="btn btn-success px-4"
-        onClick={handleApply}
-    >
-        Apply Now
-    </button>
+                                                    <button
+                                                        className="btn btn-success px-4"
+                                                         disabled={applying}
+                                                        onClick={handleApply}
+                                                    >
+                                                        {applying ? "Applying..." : "Apply Now"}
+                                                    </button>
 
-</div>
+                                                </div>
 
                                         }
 

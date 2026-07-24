@@ -216,12 +216,10 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 className="btn btn-outline-danger w-100 mb-3"
-                                onClick={() =>
+                                onClick={() =>{
 
-                                    window.location.href =
-                                        "http://localhost:5000/api/auth/google/candidate"
-
-                                }
+                                    window.location.href =`${import.meta.env.VITE_API_URL}/auth/google/candidate`;
+                                }}
                             >
 
                                 Continue as Candidate with Google
@@ -231,12 +229,11 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 className="btn btn-outline-success w-100"
-                                onClick={() =>
+                                onClick={() =>{
 
-                                    window.location.href =
-                                        "http://localhost:5000/api/auth/google/company"
+                                    window.location.href =`${import.meta.env.VITE_API_URL}/auth/google/company`;
 
-                                }
+                                }}
                             >
 
                                 Continue as Company with Google

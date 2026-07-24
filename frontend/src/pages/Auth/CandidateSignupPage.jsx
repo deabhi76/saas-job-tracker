@@ -201,8 +201,9 @@ export default function CandidateSignupPage() {
                                 className="btn btn-outline-danger w-100"
                                 onClick={() =>
 
-                                    window.location.href =
-                                        "http://localhost:5000/api/auth/google/candidate"
+                                   {
+                                    window.location.href =`${import.meta.env.VITE_API_URL}/auth/google/candidate`;
+                                   }
 
                                 }
                             >

@@ -7,10 +7,12 @@ const authRoutes =require('./routes/authRoutes');
 const pool =require('./db/db');
 
 const cors = require('cors');
-
+console.log("REDIS_URL =", process.env.REDIS_URL);
+console.log("NODE_ENV =", process.env.NODE_ENV);
 const {
     connectRedis
 } = require('./config/redis');
+
 
 const app = express();
 
@@ -56,7 +58,7 @@ app.get('/', (req, res) => {
     res.send('Auth Service Running');
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 
 

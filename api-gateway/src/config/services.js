@@ -1,14 +1,14 @@
 const services = {
 
-    AUTH_SERVICE:'http://localhost:3001',
+    AUTH_SERVICE: process.env.AUTH_SERVICE_URL,
 
-    JOB_SERVICE:'http://localhost:3002',
+    JOB_SERVICE: process.env.JOB_SERVICE_URL,
 
-    NOTIFICATION_SERVICE:'http://localhost:3003',
+    NOTIFICATION_SERVICE: process.env.NOTIFICATION_SERVICE_URL,
 
-    BILLING_SERVICE:'http://localhost:3004',
+    BILLING_SERVICE: process.env.BILLING_SERVICE_URL,
 
-    ANALYTICS_SERVICE:'http://localhost:3005'
+    ANALYTICS_SERVICE: process.env.ANALYTICS_SERVICE_URL
 
 };
 
