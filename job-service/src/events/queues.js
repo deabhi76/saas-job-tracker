@@ -1,29 +1,15 @@
-const { Queue } =
-    require('bullmq');
+const { Queue } = require("bullmq");
+const bullRedis = require("../config/bullRedis");
 
-const redis =
-    require('../config/redis');
+const notificationQueue = new Queue("notificationQueue", {
+    connection: bullRedis,
+});
 
-const notificationQueue =
-    new Queue(
-        'notificationQueue',
-        {
-            connection:
-                redis
-        }
-    );
-
-const analyticsQueue =
-    new Queue(
-
-        'analyticsQueue',
-
-        {
-            connection: redis
-        }
-    );
+const analyticsQueue = new Queue("analyticsQueue", {
+    connection: bullRedis,
+});
 
 module.exports = {
     notificationQueue,
-    analyticsQueue
+    analyticsQueue,
 };

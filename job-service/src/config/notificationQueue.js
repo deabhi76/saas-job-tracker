@@ -1,15 +1,15 @@
-require('dotenv').config();
+// require('dotenv').config();
 
-const { Queue } = require('bullmq');
-const Redis = require('ioredis');
+// const { Queue } = require('bullmq');
+// const Redis = require('ioredis');
 
-const connection = new Redis(process.env.REDIS_URL, {
-    maxRetriesPerRequest: null,
-});
+// const connection = new Redis(process.env.REDIS_URL, {
+//     maxRetriesPerRequest: null,
+// });
 
-const notificationQueue = new Queue(
-    'notifications',
-    { connection }
-);
+// const notificationQueue = new Queue(
+//     'notifications',
+//     { connection }
+// );
 
-module.exports = notificationQueue;
+// module.exports = notificationQueue;
