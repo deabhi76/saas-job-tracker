@@ -10,7 +10,7 @@ const {
 
 const services =
     require('../config/services');
-
+console.log("JOB_SERVICE =", services.JOB_SERVICE);
 const jobProxy =
     createProxyMiddleware({
 
