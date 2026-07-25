@@ -48,7 +48,6 @@ app.use((req, res, next) => {
 
 });
 
-console.log("JOB_SERVICE =", services.JOB_SERVICE);
 
 app.use('/auth', authRoutes);
 
