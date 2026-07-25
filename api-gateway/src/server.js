@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const app = require('./app');
+// const app = require('./app');
 
 const {
     connectRedis,
@@ -16,6 +16,8 @@ async function startServer() {
     try {
 
         await connectRedis();
+
+        const app = require('./app');
 
         server=app.listen(PORT, () => {
 
