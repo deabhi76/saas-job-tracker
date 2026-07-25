@@ -33,13 +33,20 @@ const authProxy =
         },
 
         onError(err, req, res) {
+    console.error("========== AUTH PROXY ERROR ==========");
+    console.error("Message:", err.message);
+    console.error("Code:", err.code);
+    console.error(err);
+    console.error("======================================");
 
-            console.error(
-                'Proxy Error:',
-                err
-            );
-
-        }
+    if (!res.headersSent) {
+        res.status(502).json({
+            success: false,
+            message: err.message,
+            code: err.code
+        });
+    }
+}
 
     });
 
